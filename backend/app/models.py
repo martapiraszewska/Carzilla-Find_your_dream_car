@@ -1,5 +1,5 @@
 from .db import db
-# from flask_login import UserMixin
+from flask_login import UserMixin
 
 class CarCondition(db.Model):
     __tablename__ = "Car_condition"
@@ -51,7 +51,13 @@ class EmployeeStatus(db.Model):
     Employee_status_ID = db.Column(db.Integer, primary_key=True)
     Status_name = db.Column(db.String, nullable=False)
 
-class Employee(db.Model):
+class LoginCredentials(db.Model):
+    __tablename__ = 'Login_credentials'
+    Login_credentials_ID = db.Column(db.Integer, primary_key=True)
+    Login = db.Column(db.String, nullable=False)
+    Password = db.Column(db.String, nullable=False)
+
+class Employee(UserMixin, db.Model):
     __tablename__ = "Employee"
     Employee_ID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String, nullable=False)
@@ -62,6 +68,11 @@ class Employee(db.Model):
     Phone_number = db.Column(db.String)
     Employee_status_ID = db.Column(db.Integer, db.ForeignKey("Employee_status.Employee_status_ID"), nullable=False)
     Car_dealer_ID = db.Column(db.Integer, db.ForeignKey("Car_dealer.Car_dealer_ID"), nullable=False)
+    Login_credentials_ID = db.Column(db.Integer, db.ForeignKey('Login_credentials.Login_credentials_ID'), nullable=False)
+
+    # flask_login
+    def get_id(self):
+        return int(self.Employee_ID)
 
 class Position(db.Model):
     __tablename__ = "Position"

@@ -62,7 +62,8 @@ CREATE TABLE "Employee" (
   "Date_of_birth" date NOT NULL,
   "Phone_number" text,
   "Employee_status_ID" integer NOT NULL,
-  "Car_dealer_ID" integer NOT NULL
+  "Car_dealer_ID" integer NOT NULL,
+  "Login_credentials_ID" integer NOT NULL
 );
 
 CREATE TABLE "Employee_status" (
@@ -105,6 +106,12 @@ CREATE TABLE "Employee_stats" (
   PRIMARY KEY ("Year", "Month", "Employee_ID")
 );
 
+CREATE TABLE "Login_credentials" (
+  "Login_credentials_ID" integer PRIMARY KEY,
+  "Login" text NOT NULL,
+  "Password" text NOT NULL
+);
+
 ALTER TABLE "Car" ADD FOREIGN KEY ("Condition_ID") REFERENCES "Car_condition" ("Condition_ID");
 
 ALTER TABLE "Car" ADD FOREIGN KEY ("Dealer_ID") REFERENCES "Car_dealer" ("Car_dealer_ID");
@@ -131,6 +138,8 @@ ALTER TABLE "Car_dealer" ADD FOREIGN KEY ("Address_ID") REFERENCES "Address" ("A
 
 ALTER TABLE "Employee_stats" ADD FOREIGN KEY ("Employee_ID") REFERENCES "Employee" ("Employee_ID");
 
+ALTER TABLE "Employee" ADD FOREIGN KEY ("Login_credentials_ID") REFERENCES "Login_credentials" ("Login_credentials_ID");
+
 -- SOME DATA
 
 INSERT INTO "City" ("City_ID", "Name", "Country") VALUES (1, 'Davisside', 'Mongolia');
@@ -151,11 +160,16 @@ INSERT INTO "Car_dealer" ("Car_dealer_ID", "Name", "Address_ID") VALUES (2, 'Per
 INSERT INTO "Car_dealer" ("Car_dealer_ID", "Name", "Address_ID") VALUES (3, 'Kemp-Mccullough', 3);
 INSERT INTO "Employee_status" ("Employee_status_ID", "Status_name") VALUES (1, 'Active');
 INSERT INTO "Employee_status" ("Employee_status_ID", "Status_name") VALUES (2, 'On Leave');
-INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID") VALUES (1, 'Douglas', 'Thompson', 'M', 4043, '1974-08-23', '001-185-847-0477x8052', 2, 1);
-INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID") VALUES (2, 'Gabriel', 'Chapman', 'F', 7032, '1971-07-08', '(482)317-1067', 1, 2);
-INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID") VALUES (3, 'Robin', 'Munoz', 'M', 7259, '1997-08-28', '(780)229-0358', 2, 1);
-INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID") VALUES (4, 'Lisa', 'Perez', 'F', 3629, '1968-06-08', '001-091-504-7466x780', 2, 3);
-INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID") VALUES (5, 'Paul', 'Greene', 'M', 4799, '1993-09-03', '+1-034-809-1829x4614', 1, 2);
+INSERT INTO "Login_credentials" ("Login_credentials_ID", "Login", "Password") VALUES (1, 'admin', 'scrypt:32768:8:1$Pq1rpiPhKce7y1yA$a1f05c2896846128e181cb48c634e673aafec41268f33d666fb944dc0b71a019f3a826ba25467473bb06e0209cafbccad93ff976eb2df57dd7589f50c35102ce');
+INSERT INTO "Login_credentials" ("Login_credentials_ID", "Login", "Password") VALUES (2, 'worker1', 'scrypt:32768:8:1$lAC4VNNEsfi2RIbO$b0582f8152be45a8e2ad0a047dd991e12f3837a998785f2b8784722f9bf2e44a6a91438665098d66858756acad5a7e3ad01ee5d436f946b1040aaa402c1cb382');
+INSERT INTO "Login_credentials" ("Login_credentials_ID", "Login", "Password") VALUES (3, 'worker2', 'scrypt:32768:8:1$lAC4VNNEsfi2RIbO$b0582f8152be45a8e2ad0a047dd991e12f3837a998785f2b8784722f9bf2e44a6a91438665098d66858756acad5a7e3ad01ee5d436f946b1040aaa402c1cb382');
+INSERT INTO "Login_credentials" ("Login_credentials_ID", "Login", "Password") VALUES (4, 'worker3', 'scrypt:32768:8:1$lAC4VNNEsfi2RIbO$b0582f8152be45a8e2ad0a047dd991e12f3837a998785f2b8784722f9bf2e44a6a91438665098d66858756acad5a7e3ad01ee5d436f946b1040aaa402c1cb382');
+INSERT INTO "Login_credentials" ("Login_credentials_ID", "Login", "Password") VALUES (5, 'worker4', 'scrypt:32768:8:1$lAC4VNNEsfi2RIbO$b0582f8152be45a8e2ad0a047dd991e12f3837a998785f2b8784722f9bf2e44a6a91438665098d66858756acad5a7e3ad01ee5d436f946b1040aaa402c1cb382');
+INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID", "Login_credentials_ID") VALUES (1, 'Douglas', 'Thompson', 'M', 4043, '1974-08-23', '001-185-847-0477x8052', 2, 1, 1);
+INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID", "Login_credentials_ID") VALUES (2, 'Gabriel', 'Chapman', 'F', 7032, '1971-07-08', '(482)317-1067', 1, 2, 2);
+INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID", "Login_credentials_ID") VALUES (3, 'Robin', 'Munoz', 'M', 7259, '1997-08-28', '(780)229-0358', 2, 1, 3);
+INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID", "Login_credentials_ID") VALUES (4, 'Lisa', 'Perez', 'F', 3629, '1968-06-08', '001-091-504-7466x780', 2, 3, 4);
+INSERT INTO "Employee" ("Employee_ID", "Name", "Surname", "Gender", "Salary", "Date_of_birth", "Phone_number", "Employee_status_ID", "Car_dealer_ID", "Login_credentials_ID") VALUES (5, 'Paul', 'Greene', 'M', 4799, '1993-09-03', '+1-034-809-1829x4614', 1, 2, 5);
 INSERT INTO "Client" ("Client_ID", "Name", "Surname", "Gender", "Mail", "Phone") VALUES (1, 'Katherine', 'Stewart', 'F', 'unovak@stanley.com', '991-633-1956x6760');
 INSERT INTO "Client" ("Client_ID", "Name", "Surname", "Gender", "Mail", "Phone") VALUES (2, 'Christine', 'Perez', 'M', 'james98@yahoo.com', '(633)152-2405x3069');
 INSERT INTO "Client" ("Client_ID", "Name", "Surname", "Gender", "Mail", "Phone") VALUES (3, 'Jeffery', 'Johnson', 'F', 'blackjill@guerrero.info', '279-221-2846x017');
