@@ -15,5 +15,17 @@ services:
     ports:
       - "5432:5432"
 
+  # backend:
+  #   build: ./backend
+  #   container_name: my_flask_app
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - ./backend:/app
+
 volumes:
   pgdata:
