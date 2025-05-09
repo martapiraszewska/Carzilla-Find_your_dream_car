@@ -1,12 +1,12 @@
-### Carzilla - find your dream car
+# Carzilla - find your dream car
 
 ## Autorzy:
 Jakub Bagiński, Michał Bloch, Bartosz Mączka, Aleksander Paliwoda, Marta Piraszewska
 
-# O czym jest projekt?
+### O czym jest projekt?
 Projekt jest stworzony do obsługi sieci dealerów samochodowych. Strona ma spełniać funkcjonalność prowadzenia działalności (faktury, pracownicy itd.), wyszukiwania danych (samochodów), tworzenia statystyk (ilość faktur danego pracownika, zarobki, pracownik miesiąca itp.)
 
-# Założenia
+### Założenia
  - domyślnie strona jest dla pracowników firmy
  - bez logowania może wejść każdy - jest dostępna tylko wyszukiwarka samochodów
  - dla każdego pracownika dodatkowo wystawianie faktur
