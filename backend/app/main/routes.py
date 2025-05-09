@@ -1,25 +1,26 @@
 from flask import Blueprint, request, jsonify
 from ..models import Car
+from typing import List
 
 main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/search", methods=["GET"])
 def search_cars():
-    # Example: /search?make=Toyota&available=true
+    # Example: /search?brand=Toyota
     filters = {}
-    if "make" in request.args:
-        filters["make"] = request.args["make"]
-    if "available" in request.args:
-        filters["available"] = request.args["available"].lower() == "true"
-    cars = Car.query.filter_by(**filters).all()
+
+    print(request.args)
+    if "brand" in request.args:
+        filters["Brand"] = request.args["brand"]
+    cars:List[Car] = Car.query.filter_by(**filters).all()
+    print(cars)
     return jsonify([{
-        "id": car.id,
-        "make": car.make,
-        "model": car.model,
-        "year": car.year,
-        "price": car.price
+        "id": car.Car_ID,
+        "brand": car.Brand,
+        "model": car.Model,
+        "price": car.Price
     } for car in cars])
 
-@main_bp.route("/", methods=["GET"])
+@main_bp.route("/status", methods=["GET"])
 def main_page():
-    return jsonify("HOME PAGE")
+    return jsonify("PING PONG")
