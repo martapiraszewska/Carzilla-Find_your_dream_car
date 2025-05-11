@@ -28,7 +28,7 @@ for car_id in range(501):
     condition_id = random.choice(conditions)
     car_dealer_id = random.choice(car_dealer_ids)
     car_data_realistic.append(
-        f"""INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES ({car_id}, '{brand}', '{model}', '{color}', {mileage}, {price}, {condition_id}, {car_dealer_id});\n"""
+        f"({car_id}, '{brand}', '{model}', '{color}', {mileage}, {price}, {condition_id}, {car_dealer_id}),\n"
     )
     car_id += 1
 
