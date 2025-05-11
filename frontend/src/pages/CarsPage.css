@@ -1,0 +1,38 @@
+.cars-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.cars-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.cars-actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.cars-button {
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cars-button:hover {
+  background-color: #0056b3;
+}

@@ -11,7 +11,10 @@ const HomePage = () => {
   return (
     <div className="homepage">
       <ToolBar />
-      <div>
+      <div className="homepage-content">
+        <h1 className="homepage-title">
+          {isLogged ? 'Welcome to Your Dashboard' : 'Find Your Dream Car'}
+        </h1>
         {isLogged ? <DashboardPage /> : <SearchBar />}
       </div>
     </div>
