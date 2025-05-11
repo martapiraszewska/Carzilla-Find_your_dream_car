@@ -11,7 +11,7 @@ const SearchBar = () => {
     if (brandInput) query.append('brand', brandInput);
     if (modelInput) query.append('model', modelInput);
 
-    fetch(`search?${query.toString()}`) // Endpoint to search cars
+    fetch(`search?${query.toString()}`)
       .then(response => response.json())
       .then(data => {
         setCars(data);

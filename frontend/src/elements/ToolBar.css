@@ -1,12 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 .toolbar {
-    background-color: #302030;
-    display: 'flex';
-    justify-content: 'space-around';
-    align-items: 'center';
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.toolbar-logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-logo {
+  width: 70px;
+  height: 70px;
+  margin-right: 10px;
+}
+
+.toolbar-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.toolbar-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .toolbar-button {
-    
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toolbar-button:hover {
+  background-color: #007bff;
+  color: #ffffff;
+  border-color: #007bff;
 }
