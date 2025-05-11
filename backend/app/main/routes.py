@@ -6,14 +6,15 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/search", methods=["GET"])
 def search_cars():
-    # Example: /search?brand=Toyota
+    # Example: /search?brand=Toyota&model=Corolla
     filters = {}
 
-    print(request.args)
     if "brand" in request.args:
         filters["Brand"] = request.args["brand"]
-    cars:List[Car] = Car.query.filter_by(**filters).all()
-    print(cars)
+    if "model" in request.args:
+        filters["Model"] = request.args["model"]
+
+    cars: List[Car] = Car.query.filter_by(**filters).all()
     return jsonify([{
         "id": car.Car_ID,
         "brand": car.Brand,

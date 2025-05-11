@@ -2,32 +2,57 @@ import React, { useState } from 'react';
 import './SearchBar.css';
 
 const SearchBar = () => {
-  const [query, setQuery] = useState('');
-  const [queryData, setData] = useState([]);  // not ideal way to do this
+  const [brandInput, setBrandInput] = useState('');
+  const [modelInput, setModelInput] = useState('');
+  const [cars, setCars] = useState([]);
 
-  function querySearch(){
-    fetch(`search?${query}`)
-      .then(response => {
-        console.log(response);
-        return response.json();
-      })
+  const handleSearch = () => {
+    const query = new URLSearchParams();
+    if (brandInput) query.append('brand', brandInput);
+    if (modelInput) query.append('model', modelInput);
+
+    fetch(`search?${query.toString()}`) // Endpoint to search cars
+      .then(response => response.json())
       .then(data => {
-        setData(data);
+        setCars(data);
       })
-      .catch(error => console.error('Error:', error));
-  }
+      .catch(error => console.error('Error fetching cars:', error));
+  };
 
   return (
     <div className="search-bar">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search... can be empty"
-        className="search-input"
-      />
-      <button className="search-button" onClick={querySearch}> Search</button>
-      {queryData.map(d => ` |${d.brand}|`)}  {/*another not good thing*/}
+      <div className="input-group">
+        <input
+          type="text"
+          placeholder="Enter brand"
+          value={brandInput}
+          onChange={(e) => setBrandInput(e.target.value)}
+          className="brand-input"
+        />
+        <input
+          type="text"
+          placeholder="Enter model"
+          value={modelInput}
+          onChange={(e) => setModelInput(e.target.value)}
+          className="model-input"
+        />
+        <button className="search-button" onClick={handleSearch}>
+          Search
+        </button>
+      </div>
+      <div className="car-list">
+        {cars.length > 0 ? (
+          <ul>
+            {cars.map((car) => (
+              <li key={car.id}>
+                {car.brand} {car.model} - ${car.price}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No cars found</p>
+        )}
+      </div>
     </div>
   );
 };

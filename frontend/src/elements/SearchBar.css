@@ -1,0 +1,31 @@
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.brand-input, .model-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.search-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.car-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.car-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
