@@ -1,34 +1,19 @@
-import React  from 'react';
-import './App.css';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage.js';
-import LoginPage from './pages/LoginPage.js';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
 
-
-function App() {
+const App = () => {
   return (
-    <div className='App'>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+      </Routes>
+    </Router>
   );
-}
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <div>
-//         <ToolBar></ToolBar>
-//       </div>
-//       <div>
-//         <SearchBar></SearchBar>
-//       </div>
-//     </div>
-//   );
-// }
+};
 
 export default App;

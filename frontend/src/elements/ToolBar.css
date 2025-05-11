@@ -1,12 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
 .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background-color: #0056b3;
+  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ddd;
+  padding: 0 30px;
+  z-index: 1000;
 }
 
 .toolbar-logo-container {
@@ -15,38 +19,35 @@
 }
 
 .toolbar-logo {
-  width: 70px;
-  height: 70px;
-  margin-right: 10px;
+  width: 60px;
+  height: 60px;
+  margin-right: 15px;
 }
 
 .toolbar-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  color: #2c3e50;
+  font-size: 22px;
+  font-weight: bold;
 }
 
 .toolbar-buttons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
+  margin-right: 50px;
 }
 
 .toolbar-button {
-  font-family: 'Poppins', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background-color: transparent;
+  border: 1px solid white;
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: 8px 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .toolbar-button:hover {
-  background-color: #007bff;
-  color: #ffffff;
-  border-color: #007bff;
+  background-color: white;
+  color: #0056b3;
 }
