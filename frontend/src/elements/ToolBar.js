@@ -1,16 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './ToolBar.css';
 import logo from '../assets/Carzilla_logo.png';
+
 const ToolBar = () => {
+  const { isLogged } = useAuth();
   const navigate = useNavigate();
 
   const handleHome = () => {
-    navigate('/');
+    isLogged ? navigate('/dashboard') : navigate('/');
   };
 
   const handleLogin = () => {
     navigate('/login');
+  };
+
+  const handleProfile = () => {
+    navigate('/dashboard'); // It is wrong for now, but we will change it later
+    // This should navigate to the profile page
   };
 
   return (
@@ -21,8 +29,11 @@ const ToolBar = () => {
       </div>
       <div className='toolbar-buttons'>
         <button className='toolbar-button' onClick={handleHome}>Home</button>
-        <button className='toolbar-button' onClick={handleLogin}>Login</button>
-        <button className='toolbar-button'>Settings</button>
+        {isLogged ? (
+          <button className='toolbar-button' onClick={handleProfile}>Profile</button>
+        ) : (
+          <button className='toolbar-button' onClick={handleLogin}>Login</button>
+        )}
       </div>
     </div>
   );

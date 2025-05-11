@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import './LoginPage.css';
-import ToolBar from '../elements/ToolBar.js';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './LoginPage.css';
+import ToolBar from '../elements/ToolBar';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = () => {
     // Simulate login logic (replace with actual API call)
     if (username === 'admin' && password === 'password') {
-      navigate('/dashboard');
+      login();
+      navigate('/dashboard'); // Redirect to the dashboard
     } else {
       alert('Invalid credentials');
     }
@@ -21,6 +24,7 @@ const LoginPage = () => {
     <div className="loginpage">
       <ToolBar />
       <div className="login-box">
+        <h1 className='login'>Login</h1>
         <input
           type="text"
           className="credentials-input"
