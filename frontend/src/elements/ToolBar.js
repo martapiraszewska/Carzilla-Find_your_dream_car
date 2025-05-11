@@ -17,8 +17,7 @@ const ToolBar = () => {
   };
 
   const handleProfile = () => {
-    navigate('/dashboard'); // It is wrong for now, but we will change it later
-    // This should navigate to the profile page
+    navigate('/profile');
   };
 
   return (
