@@ -4,27 +4,46 @@ from typing import List
 
 main_bp = Blueprint("main", __name__)
 
+
 @main_bp.route("/search", methods=["GET"])
 def search_cars():
     # Example: /search?brand=Toyota&model=Corolla
-    filters = {}
+    search_fields = {
+        "brand": Car.Brand,
+        "model": Car.Model,
+        "color": Car.Color,
+        "mileage": Car.Mileage,
+        "price": Car.Price,
+        "condition_ID": Car.Condition_ID,
+        "dealer_ID": Car.Dealer_ID,
+    }
 
-    if "brand" in request.args:
-        filters["Brand"] = request.args["brand"]
-    if "model" in request.args:
-        filters["Model"] = request.args["model"]
+    query = Car.query
 
-    cars: List[Car] = Car.query.filter_by(**filters).all()
-    return jsonify([{
-        "id": car.Car_ID,
-        "brand": car.Brand,
-        "model": car.Model,
-        "price": car.Price
-    } for car in cars])
+    for arg in request.args:
+        if arg not in search_fields:  # security check
+            continue
+        value = request.args[arg]
+        query = query.filter(search_fields[arg].ilike(f"%{value}%"))
+
+    cars: List[Car] = query.all()
+
+    return jsonify(
+        [
+            {
+                "id": car.Car_ID,
+                "brand": car.Brand,
+                "model": car.Model,
+                "price": car.Price,
+            }
+            for car in cars
+        ]
+    )
+
 
 @main_bp.route("/", methods=["GET"])
 def main_page():
-    return '''
+    return """
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -63,4 +82,4 @@ def main_page():
         </script>
     </body>
     </html>
-    '''
+    """
