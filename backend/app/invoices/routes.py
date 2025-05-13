@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from models import db, Invoice
-from datetime import datetime
+from datetime import datetime, timezone
 
 invoices_bp = Blueprint("invoices", __name__)
 
@@ -22,6 +22,8 @@ def create_invoice():
             issue_date = datetime.strptime(data["Issue_date"], "%Y-%m-%d").date()
         except ValueError:
             return jsonify({"error": "Issue_date must be in YYYY-MM-DD format"}), 400
+    else:
+        issue_date = datetime.now(timezone.utc).date()
 
     try:
         invoice = Invoice(Status=data["Status"], NIP=data["NIP"], Issue_date=issue_date)
