@@ -1,1 +1,1 @@
-from .routes import invoice_bp
+from .routes import invoices_bp
