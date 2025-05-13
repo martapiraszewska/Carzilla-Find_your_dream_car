@@ -1,8 +1,8 @@
 import React from 'react';
 import './HomePage.css';
-import ToolBar from '../elements/ToolBar.js';
-import SearchBar from '../elements/SearchBar.js';
-import DashboardPage from './DashboardPage.js';
+import ToolBar from '../elements/ToolBar.jsx';
+import SearchBar from '../elements/SearchBar.jsx';
+import DashboardPage from './DashboardPage.jsx';
 import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {

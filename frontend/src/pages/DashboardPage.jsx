@@ -1,6 +1,6 @@
 import React from 'react';
 import './DashboardPage.css';
-import ToolBar from '../elements/ToolBar.js';
+import ToolBar from '../elements/ToolBar.jsx';
 import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
