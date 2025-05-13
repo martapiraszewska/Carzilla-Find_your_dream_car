@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..models import Car
+from ..models import Car, Employee, db
 from typing import List
 
 main_bp = Blueprint("main", __name__)
@@ -64,3 +64,12 @@ def main_page():
     </body>
     </html>
     '''
+
+@main_bp.route("/employees", methods=["GET"])
+def manage_employees():
+    if request.method == "GET":
+        employees: List[Employee] = Employee.query.all()
+        return jsonify([{
+            "id": employee.Employee_ID,
+            "name": f"{employee.Name} {employee.Surname}",
+        } for employee in employees])

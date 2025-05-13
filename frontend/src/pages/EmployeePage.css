@@ -1,0 +1,72 @@
+.employee-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.employee-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.employee-list {
+  list-style-type: none;
+  padding: 0;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.employee-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employee-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.employee-position {
+  font-size: 16px;
+  color: #555;
+}
+
+.hire-button,
+.fire-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hire-button:hover {
+  background-color: #0056b3;
+}
+
+.fire-button {
+  background-color: #dc3545;
+}
+
+.fire-button:hover {
+  background-color: #a71d2a;
+}
