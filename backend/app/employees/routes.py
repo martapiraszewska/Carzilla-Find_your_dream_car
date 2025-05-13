@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
-from models import db, Employee
-from datetime import datetime
+from models import db, Employee, Position, PositionHistory
+from datetime import datetime, timezone
 import re
 
 employees_bp = Blueprint("employees", __name__)
@@ -25,19 +25,71 @@ def create_employee():
     if missing:
         return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
 
+    # Walidacja daty
+    try:
+        dob = datetime.strptime(data["Date_of_birth"], "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"error": "Invalid Date_of_birth format"}), 400
+
+    # Walidacja numeru telefonu
+    phone = data.get("Phone_number")
+    if phone:
+        phone_pattern = r"^\+?\d[\d\s\-]{5,20}$"
+        if not re.fullmatch(phone_pattern, phone):
+            return jsonify({"error": "Invalid phone number format"}), 400
+
+    salary = data.get("Salary")
+    if salary:
+        # Walidacja pensji
+        try:
+            salary = int(salary)
+            if salary < 0:
+                return jsonify({"error": "Salary must be non-negative"}), 400
+        except ValueError:
+            return jsonify({"error": "Salary must be an integer"}), 400
+
+        # Sprawdzenie stanowiska i widełek pensji
+        position = Position.query.get(data["Position_ID"])
+        if not position:
+            return jsonify({"error": "Invalid Position_ID"}), 400
+        if not (position.Min_salary <= salary <= position.Max_salary):
+            return (
+                jsonify(
+                    {
+                        "error": f"Salary {salary} not within range {position.Min_salary}–{position.Max_salary}"
+                    }
+                ),
+                400,
+            )
+
+    # Tworzenie pracownika
     try:
         employee = Employee(
             Name=data["Name"],
             Surname=data["Surname"],
             Gender=data["Gender"],
-            Salary=data.get("Salary"),
-            Date_of_birth=datetime.strptime(data["Date_of_birth"], "%Y-%m-%d"),
-            Phone_number=data.get("Phone_number"),
+            Salary=salary,
+            Date_of_birth=dob,
+            Phone_number=phone,
             Employee_status_ID=data["Employee_status_ID"],
             Car_dealer_ID=data["Car_dealer_ID"],
             Login_credentials_ID=data["Login_credentials_ID"],
         )
         db.session.add(employee)
+        db.session.flush()  # potrzebne do uzyskania ID
+
+        date_start = (
+            datetime.strptime(data.get("Date_start"), "%Y-%m-%d").date()
+            if "Date_start" in data
+            else datetime.now(timezone.utc).date()
+        )
+        history = PositionHistory(
+            Date_start=date_start,
+            Date_end=None,
+            Position_ID=data["Position_ID"],
+            Employee_ID=employee.Employee_ID,
+        )
+        db.session.add(history)
         db.session.commit()
         return jsonify({"message": "Employee created", "id": employee.Employee_ID}), 201
 
@@ -64,38 +116,86 @@ def update_employee(employee_id):
 
     update_data = {key: data[key] for key in updatable_fields if key in data}
 
-    # Walidacja Salary
-    if "Salary" in update_data:
-        if not isinstance(update_data["Salary"], int) or update_data["Salary"] < 0:
-            return jsonify({"error": "Salary must be a non-negative integer"}), 400
-
-    # Walidacja Phone_number
-    if "Phone_number" in update_data:
-        phone = update_data["Phone_number"]
-        phone_pattern = (
-            r"^\+?\d[\d\s\-]{5,20}$"  # pozwala na: +48 123456789, 123-456-789, itp.
-        )
-        if not re.fullmatch(phone_pattern, phone):
-            return jsonify({"error": "Invalid phone number format"}), 400
-
-    # Walidacja pól kończących z kluczem obcym
-    for field in update_data:
-        if field.endswith("ID") and not isinstance(update_data[field], int):
-            return jsonify({"error": f"{field} must be an integer"}), 400
-
-    # Parsowanie daty
+    # Walidacja daty
     if "Date_of_birth" in update_data:
         try:
             update_data["Date_of_birth"] = datetime.strptime(
                 update_data["Date_of_birth"], "%Y-%m-%d"
-            )
+            ).date()
         except ValueError:
-            return jsonify({"error": "Date_of_birth must be in YYYY-MM-DD format"}), 400
+            return jsonify({"error": "Invalid Date_of_birth format"}), 400
+
+    # Walidacja telefonu
+    if "Phone_number" in update_data:
+        phone_pattern = r"^\+?\d[\d\s\-]{5,20}$"
+        if not re.fullmatch(phone_pattern, update_data["Phone_number"]):
+            return jsonify({"error": "Invalid phone number format"}), 400
+
+    # Walidacja ID
+    for field in update_data:
+        if field.endswith("ID") and not isinstance(update_data[field], int):
+            return jsonify({"error": f"{field} must be an integer"}), 400
+
+    employee = Employee.query.get(employee_id)
+    if not employee:
+        return jsonify({"error": "Employee not found"}), 404
+
+    # Walidacja i aktualizacja pensji
+    if "Salary" in update_data or "Position_ID" in data:
+        salary = update_data.get("Salary", employee.Salary)
+        position_id = data.get("Position_ID")
+
+        # Pobieramy aktualne stanowisko jeśli nie podano nowego
+        current_history = PositionHistory.query.filter_by(
+            Employee_ID=employee_id, Date_end=None
+        ).first()
+        if not current_history:
+            return jsonify({"error": "No active position found for employee"}), 400
+        if not position_id:
+            position_id = current_history.Position_ID
+
+        position = Position.query.get(position_id)
+        if not position:
+            return jsonify({"error": "Invalid Position_ID"}), 400
+
+        if not (position.Min_salary <= salary <= position.Max_salary):
+            return (
+                jsonify(
+                    {
+                        "error": f"Salary {salary} not within range {position.Min_salary}–{position.Max_salary}"
+                    }
+                ),
+                400,
+            )
+
+    # Aktualizacja pracownika
+    for k, v in update_data.items():
+        setattr(employee, k, v)
+
+    # Zmiana stanowiska?
+    if "Position_ID" in data:
+        # kończymy poprzedni wpis
+        old_history = PositionHistory.query.filter_by(
+            Employee_ID=employee_id, Date_end=None
+        ).first()
+        if old_history:
+            old_history.Date_end = datetime.now(timezone.utc).date()
+
+        # dodajemy nowy wpis
+        date_start = (
+            datetime.strptime(data.get("Date_start"), "%Y-%m-%d").date()
+            if "Date_start" in data
+            else datetime.now(timezone.utc).date()
+        )
+        new_history = PositionHistory(
+            Date_start=date_start,
+            Date_end=None,
+            Position_ID=data["Position_ID"],
+            Employee_ID=employee_id,
+        )
+        db.session.add(new_history)
 
     try:
-        result = Employee.query.filter_by(Employee_ID=employee_id).update(update_data)
-        if result == 0:
-            return jsonify({"error": "Employee not found"}), 404
         db.session.commit()
         return jsonify({"message": "Employee updated"}), 200
     except Exception as e:
@@ -161,6 +261,13 @@ def delete_employee(employee_id):
         return jsonify({"error": "Employee not found"}), 404
 
     try:
+        # Ustawienie daty końca na pozycji
+        history = PositionHistory.query.filter_by(
+            Employee_ID=employee_id, Date_end=None
+        ).first()
+        if history:
+            history.Date_end = datetime.now(timezone.utc).date()
+
         db.session.delete(employee)
         db.session.commit()
         return jsonify({"message": "Employee deleted"}), 200
