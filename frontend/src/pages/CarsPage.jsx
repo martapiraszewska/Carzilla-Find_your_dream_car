@@ -16,7 +16,8 @@ const CarsPage = () => {
   const navigate = useNavigate();
 
   const handleSellCar = (carId) => {
-    navigate(`/sell-car/${carId}`);
+    // navigate(`/sell-car/${carId}`);
+    navigate(`/sell`);
   };
 
   const handleRemoveCar = (carId) => {
