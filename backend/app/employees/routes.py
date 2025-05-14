@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from models import db, Employee, Position, PositionHistory
 from datetime import datetime, timezone
+from employee import Employee_service
 import re
 
 employees_bp = Blueprint("employees", __name__)
@@ -10,92 +11,8 @@ employees_bp = Blueprint("employees", __name__)
 @employees_bp.route("/employees", methods=["POST"])
 @login_required
 def create_employee():
-    data = request.get_json()
-    required_fields = [
-        "Name",
-        "Surname",
-        "Gender",
-        "Date_of_birth",
-        "Employee_status_ID",
-        "Car_dealer_ID",
-        "Login_credentials_ID",
-    ]
-
-    missing = [field for field in required_fields if field not in data]
-    if missing:
-        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
-
-    # Walidacja daty
-    try:
-        dob = datetime.strptime(data["Date_of_birth"], "%Y-%m-%d").date()
-    except ValueError:
-        return jsonify({"error": "Invalid Date_of_birth format"}), 400
-
-    # Walidacja numeru telefonu
-    phone = data.get("Phone_number")
-    if phone:
-        phone_pattern = r"^\+?\d[\d\s\-]{5,20}$"
-        if not re.fullmatch(phone_pattern, phone):
-            return jsonify({"error": "Invalid phone number format"}), 400
-
-    salary = data.get("Salary")
-    if salary:
-        # Walidacja pensji
-        try:
-            salary = int(salary)
-            if salary < 0:
-                return jsonify({"error": "Salary must be non-negative"}), 400
-        except ValueError:
-            return jsonify({"error": "Salary must be an integer"}), 400
-
-        # Sprawdzenie stanowiska i widełek pensji
-        position = Position.query.get(data["Position_ID"])
-        if not position:
-            return jsonify({"error": "Invalid Position_ID"}), 400
-        if not (position.Min_salary <= salary <= position.Max_salary):
-            return (
-                jsonify(
-                    {
-                        "error": f"Salary {salary} not within range {position.Min_salary}–{position.Max_salary}"
-                    }
-                ),
-                400,
-            )
-
-    # Tworzenie pracownika
-    try:
-        employee = Employee(
-            Name=data["Name"],
-            Surname=data["Surname"],
-            Gender=data["Gender"],
-            Salary=salary,
-            Date_of_birth=dob,
-            Phone_number=phone,
-            Employee_status_ID=data["Employee_status_ID"],
-            Car_dealer_ID=data["Car_dealer_ID"],
-            Login_credentials_ID=data["Login_credentials_ID"],
-        )
-        db.session.add(employee)
-        db.session.flush()  # potrzebne do uzyskania ID
-
-        date_start = (
-            datetime.strptime(data.get("Date_start"), "%Y-%m-%d").date()
-            if "Date_start" in data
-            else datetime.now(timezone.utc).date()
-        )
-        history = PositionHistory(
-            Date_start=date_start,
-            Date_end=None,
-            Position_ID=data["Position_ID"],
-            Employee_ID=employee.Employee_ID,
-        )
-        db.session.add(history)
-        db.session.commit()
-        return jsonify({"message": "Employee created", "id": employee.Employee_ID}), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+    ans = Employee_service.create(request.get_json())
+    return jsonify(ans[0]), ans[1]
 
 
 @employees_bp.route("/employees/<int:employee_id>", methods=["PUT"])
