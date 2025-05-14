@@ -8,11 +8,12 @@ import ProfilePage from './pages/ProfilePage';
 import CarsPage from './pages/CarsPage';
 import EmployeePage from './pages/EmployeePage';
 import InvoicesPage from './pages/InvoicesPage';
-// import ClientsPage from './pages/ClientsPage';
+import ClientsPage from './pages/ClientsPage';
 // import StatsPage from './pages/StatsPage';
 import AddEmployee from './forms/AddEmployee';
 import AddCar from './forms/AddCar';
 import AddInvoice from './forms/AddInvoice';
+import AddClient from './forms/AddClient';
 
 const App = () => {
   return (
@@ -26,9 +27,11 @@ const App = () => {
           <Route path="/cars" element={<CarsPage />} />
           <Route path="/employees" element={<EmployeePage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/clients" element={<ClientsPage />} />
           <Route path="/hire" element={<AddEmployee />} />
           <Route path="/add-car" element={<AddCar />} />
           <Route path="/sell" element={<AddInvoice />} />
+          <Route path="/add-client" element={<AddClient />} />
         </Routes>
       </Router>
     </AuthProvider>
