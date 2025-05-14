@@ -1,21 +1,11 @@
 from typing import Dict
 from utils.validation import Valid
-from utils.date import get_date_or_today
+from utils.date import get_date_or_now
 from models import db, Employee, Position, PositionHistory
 
 
 class Employee_service:
-    def create(data) -> Dict:
-        required_fields = [
-            "Name",
-            "Surname",
-            "Gender",
-            "Date_of_birth",
-            "Employee_status_ID",
-            "Car_dealer_ID",
-            "Login_credentials_ID",
-        ]
-
+    def create(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
         valid.valid_date(data["Date_of_birth"])
@@ -44,6 +34,121 @@ class Employee_service:
             db.session.rollback()
             return {"error": str(e)}, 500
 
+    def update(employee_id, data, updatable_fields):
+        employee = Employee.query.get(employee_id)
+        if not employee:
+            return {"error": "Employee not found"}, 404
+
+        update_data = {key: data[key] for key in updatable_fields if key in data}
+
+        valid = Valid()
+        if "Date_of_birth" in update_data:
+            valid.valid_date(data["Date_of_birth"])
+
+        phone = data.get("Phone_number")
+        if phone:
+            valid.valid_phone_number(phone)
+
+        valid.valid_foreign_keys(update_data)
+
+        # Walidacja i aktualizacja pensji
+        if "Salary" in update_data or "Position_ID" in data:
+            try:
+                position = Employee_service._get_position_of_employee(employee_id, data)
+                if not position:
+                    return {"error": "Invalid Position_ID"}, 400
+            except Exception:
+                return {"error": "No active position found for employee"}, 400
+
+            salary = update_data.get("Salary", employee.Salary)
+            valid.valid_salary(salary, position.Min_salary, position.Max_salary)
+
+        if not valid.check_validity():
+            return {"error": valid.get_error_msg()}, 400
+
+        # Aktualizacja pracownika
+        for k, v in update_data.items():
+            setattr(employee, k, v)
+
+        # Zmiana stanowiska?
+        if "Position_ID" in data:
+            # kończymy poprzedni wpis
+            old_history = PositionHistory.query.filter_by(
+                Employee_ID=employee_id, Date_end=None
+            ).first()
+            if old_history:
+                old_history.Date_end = get_date_or_now()
+
+            # dodajemy nowy wpis
+            date_start = get_date_or_now(data.get("Date_start"))
+            new_history = PositionHistory(
+                Date_start=date_start,
+                Date_end=None,
+                Position_ID=data["Position_ID"],
+                Employee_ID=employee_id,
+            )
+            db.session.add(new_history)
+
+        try:
+            db.session.commit()
+            return {"message": "Employee updated"}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+
+    def search(args, search_fields):
+        query = Employee.query
+
+        for arg in args:
+            if arg not in search_fields:  # security check
+                continue
+            value = args[arg]
+
+            # Dopasowanie do kolumny w modelu, z użyciem 'ilike' dla tekstowych pól
+            if isinstance(search_fields[arg].type, db.String):  # Dla tekstowych kolumn
+                query = query.filter(search_fields[arg].ilike(f"%{value}%"))
+            else:  # Dla innych pól (np. liczbowych, datowych)
+                query = query.filter(search_fields[arg] == value)
+
+        # employees: List[Employee] = query.all()
+        employees = query.all()
+
+        return [
+            {
+                "id": emp.Employee_ID,
+                "name": emp.Name,
+                "surname": emp.Surname,
+                "gender": emp.Gender,
+                "salary": emp.Salary,
+                "date_of_birth": emp.Date_of_birth.strftime("%Y-%m-%d"),
+                "phone_number": emp.Phone_number,
+                "employee_status_id": emp.Employee_status_ID,
+                "car_dealer_id": emp.Car_dealer_ID,
+                "login_credentials_id": emp.Login_credentials_ID,
+            }
+            for emp in employees
+        ]
+
+    def delete(employee_id):
+        employee = Employee.query.get(employee_id)
+        if not employee:
+            return {"error": "Employee not found"}, 404
+
+        try:
+            # Ustawienie daty końca na pozycji
+            history = PositionHistory.query.filter_by(
+                Employee_ID=employee_id, Date_end=None
+            ).first()
+            if history:
+                history.Date_end = get_date_or_now()
+
+            db.session.delete(employee)
+            db.session.commit()
+            return {"message": "Employee deleted"}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+
     def _add_employee_to_db(data, db_session):
         employee = Employee(
             Name=data["Name"],
@@ -59,7 +164,7 @@ class Employee_service:
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
 
-        date_start = get_date_or_today(data.get("Date_start"))
+        date_start = get_date_or_now(data.get("Date_start"))
 
         emp_id = employee.Employee_id
 
@@ -73,3 +178,15 @@ class Employee_service:
         db_session.commit()
 
         return emp_id
+
+    def _get_position_of_employee(employee_id, data):
+        # Pobieramy aktualne stanowisko jeśli nie podano nowego
+        current_history = PositionHistory.query.filter_by(
+            Employee_ID=employee_id, Date_end=None
+        ).first()
+        if not current_history:
+            raise Exception("No active position found for employee")
+
+        position_id = data.get("Position_ID", current_history.Position_ID)
+
+        return Position.query.get(position_id)
