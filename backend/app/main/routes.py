@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..models import Car, Employee
 from typing import List
+import cars
 
 main_bp = Blueprint("main", __name__)
 
@@ -8,37 +9,7 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/search", methods=["GET"])
 def search_cars():
     # Example: /search?brand=Toyota&model=Corolla
-    search_fields = {
-        "brand": Car.Brand,
-        "model": Car.Model,
-        "color": Car.Color,
-        "mileage": Car.Mileage,
-        "price": Car.Price,
-        "condition_ID": Car.Condition_ID,
-        "dealer_ID": Car.Dealer_ID,
-    }
-
-    query = Car.query
-
-    for arg in request.args:
-        if arg not in search_fields:  # security check
-            continue
-        value = request.args[arg]
-        query = query.filter(search_fields[arg].ilike(f"%{value}%"))
-
-    cars: List[Car] = query.all()
-
-    return jsonify(
-        [
-            {
-                "id": car.Car_ID,
-                "brand": car.Brand,
-                "model": car.Model,
-                "price": car.Price,
-            }
-            for car in cars
-        ]
-    )
+    return cars.routes.search_car(request.args)
 
 
 @main_bp.route("/employees", methods=["GET"])
