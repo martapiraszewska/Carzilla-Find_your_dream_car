@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
+from other import str_to_class, convert_case
 import math
-import sys
 
 
 class Valid:
@@ -79,12 +79,3 @@ class Valid:
     def _add_error(self, msg):
         self._is_valid = False
         self._error_msg += msg
-
-
-def str_to_class(classname):
-    return getattr(sys.modules[__name__], classname)
-
-
-def convert_case(input_string):
-    parts = input_string.split("_")
-    return parts[0].capitalize() + parts[1].capitalize()

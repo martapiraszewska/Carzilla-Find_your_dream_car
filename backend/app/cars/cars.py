@@ -1,6 +1,5 @@
-from typing import Dict, List
+from typing import List
 from utils.validation import Valid
-from utils.date import get_date_or_now
 from models import db, Car
 
 

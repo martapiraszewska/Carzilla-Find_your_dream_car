@@ -1,8 +1,6 @@
 from flask import request, jsonify, Blueprint
 from flask_login import login_required
-from models import Car, db
 from cars import CarService
-from typing import Dict
 
 cars_bp = Blueprint("cars", __name__)
 
