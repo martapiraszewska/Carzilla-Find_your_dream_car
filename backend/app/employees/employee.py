@@ -1,6 +1,5 @@
-from typing import Dict
 from utils.validation import Valid
-from utils.date import get_date_or_now
+from utils.other import get_date_or_now
 from models import db, Employee, Position, PositionHistory
 
 
@@ -119,16 +118,16 @@ class EmployeeService:
 
         return [
             {
-                "id": emp.Employee_ID,
-                "name": emp.Name,
-                "surname": emp.Surname,
-                "gender": emp.Gender,
-                "salary": emp.Salary,
-                "date_of_birth": emp.Date_of_birth.strftime("%Y-%m-%d"),
-                "phone_number": emp.Phone_number,
-                "employee_status_id": emp.Employee_status_ID,
-                "car_dealer_id": emp.Car_dealer_ID,
-                "login_credentials_id": emp.Login_credentials_ID,
+                "Employee_ID": emp.Employee_ID,
+                "Name": emp.Name,
+                "Surname": emp.Surname,
+                "Gender": emp.Gender,
+                "Salary": emp.Salary,
+                "Date_of_birth": emp.Date_of_birth.strftime("%Y-%m-%d"),
+                "Phone_number": emp.Phone_number,
+                "Employee_status_ID": emp.Employee_status_ID,
+                "Car_dealer_ID": emp.Car_dealer_ID,
+                "Login_credentials_ID": emp.Login_credentials_ID,
             }
             for emp in employees
         ]

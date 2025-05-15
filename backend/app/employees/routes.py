@@ -1,9 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
-from models import db, Employee, Position, PositionHistory
-from datetime import datetime, timezone
+from models import Employee
 from employee import EmployeeService
-import re
 
 employees_bp = Blueprint("employees", __name__)
 
@@ -53,15 +51,15 @@ def delete_employee(employee_id):
 @login_required
 def search_employees():
     search_fields = {
-        "name": Employee.Name,
-        "surname": Employee.Surname,
-        "gender": Employee.Gender,
-        "salary": Employee.Salary,
-        "date_of_birth": Employee.Date_of_birth,
-        "phone_number": Employee.Phone_number,
-        "employee_status_id": Employee.Employee_status_ID,
-        "car_dealer_id": Employee.Car_dealer_ID,
-        "login_credentials_id": Employee.Login_credentials_ID,
+        "Name": Employee.Name,
+        "Surname": Employee.Surname,
+        "Gender": Employee.Gender,
+        "Salary": Employee.Salary,
+        "Date_of_birth": Employee.Date_of_birth,
+        "Phone_number": Employee.Phone_number,
+        "Employee_status_id": Employee.Employee_status_ID,
+        "Car_dealer_id": Employee.Car_dealer_ID,
+        "Login_credentials_id": Employee.Login_credentials_ID,
     }
     ans = EmployeeService.search(request.args, search_fields)
     return jsonify(ans)
