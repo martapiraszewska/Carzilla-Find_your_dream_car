@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 import math
+import sys
 
 
 class Valid:
@@ -50,6 +51,37 @@ class Valid:
 
     def valid_foreign_keys(self, data: dict):
         for field in data:
-            if field.upper().endswith("ID") and not isinstance(data[field], int):
+            if not field.endswith("_ID"):
+                continue
+
+            if not isinstance(data[field], int):
                 self._is_valid = False
                 self._error_msg += f"{field} must be an integer. "
+                continue
+
+            try:
+                model_class_name = str_to_class(convert_case(field[:-3]))
+            except Exception:
+                self._is_valid = False
+                self._error_msg += f"{field} does not refer to any table. "
+                continue
+
+            id_found = False
+            for entry in model_class_name.query.all():
+                if getattr(entry, field) == data[field]:
+                    id_found = True
+
+            if not id_found:
+                self._is_valid = False
+                self._error_msg += (
+                    f"{model_class_name} does not contain ID={data[field]}. "
+                )
+
+
+def str_to_class(classname):
+    return getattr(sys.modules[__name__], classname)
+
+
+def convert_case(input_string):
+    parts = input_string.split("_")
+    return parts[0].capitalize() + parts[1].capitalize()

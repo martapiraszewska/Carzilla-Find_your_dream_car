@@ -4,11 +4,12 @@ from utils.date import get_date_or_now
 from models import db, Employee, Position, PositionHistory
 
 
-class Employee_service:
+class EmployeeService:
     def create(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
         valid.valid_date(data["Date_of_birth"])
+        valid.valid_foreign_keys(required_fields)
 
         phone = data.get("Phone_number")
         if phone:
@@ -27,7 +28,7 @@ class Employee_service:
 
         # Tworzenie pracownika
         try:
-            emp_id = Employee_service._add_employee_to_db(data, db.session)
+            emp_id = EmployeeService._add_employee_to_db(data, db.session)
             return {"message": "Employee created", "id": emp_id}, 201
 
         except Exception as e:
@@ -40,6 +41,9 @@ class Employee_service:
             return {"error": "Employee not found"}, 404
 
         update_data = {key: data[key] for key in updatable_fields if key in data}
+
+        if not update_data:
+            return {"error": "No valid fields to update"}, 400
 
         valid = Valid()
         if "Date_of_birth" in update_data:
@@ -54,7 +58,7 @@ class Employee_service:
         # Walidacja i aktualizacja pensji
         if "Salary" in update_data or "Position_ID" in data:
             try:
-                position = Employee_service._get_position_of_employee(employee_id, data)
+                position = EmployeeService._get_position_of_employee(employee_id, data)
                 if not position:
                     return {"error": "Invalid Position_ID"}, 400
             except Exception:

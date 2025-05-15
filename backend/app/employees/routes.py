@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from models import db, Employee, Position, PositionHistory
 from datetime import datetime, timezone
-from employee import Employee_service
+from employee import EmployeeService
 import re
 
 employees_bp = Blueprint("employees", __name__)
@@ -20,7 +20,7 @@ def create_employee():
         "Car_dealer_ID",
         "Login_credentials_ID",
     ]  # there are also other non-obligatory fields that you can add
-    ans = Employee_service.create(request.get_json(), required_fields)
+    ans = EmployeeService.create(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
 
 
@@ -38,14 +38,14 @@ def update_employee(employee_id):
         "Car_dealer_ID",
         "Login_credentials_ID",
     ]
-    ans = Employee_service.update(employee_id, request.get_json(), updatable_fields)
+    ans = EmployeeService.update(employee_id, request.get_json(), updatable_fields)
     return jsonify(ans[0]), ans[1]
 
 
 @employees_bp.route("/employees/<int:employee_id>", methods=["DELETE"])
 @login_required
 def delete_employee(employee_id):
-    ans = Employee_service.delete(employee_id)
+    ans = EmployeeService.delete(employee_id)
     return jsonify(ans[0]), ans[1]
 
 
@@ -63,5 +63,5 @@ def search_employees():
         "car_dealer_id": Employee.Car_dealer_ID,
         "login_credentials_id": Employee.Login_credentials_ID,
     }
-    ans = Employee_service.search(request.args, search_fields)
+    ans = EmployeeService.search(request.args, search_fields)
     return jsonify(ans)
