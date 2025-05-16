@@ -5,12 +5,12 @@ CREATE TABLE "Car" (
   "Color" text NOT NULL,
   "Mileage" integer NOT NULL,
   "Price" integer NOT NULL,
-  "Condition_ID" integer NOT NULL,
-  "Dealer_ID" integer NOT NULL
+  "Car_Condition_ID" integer NOT NULL,
+  "Car_Dealer_ID" integer NOT NULL
 );
 
 CREATE TABLE "Car_condition" (
-  "Condition_ID" integer PRIMARY KEY,
+  "Car_Condition_ID" integer PRIMARY KEY,
   "Condition" name NOT NULL
 );
 
