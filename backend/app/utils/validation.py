@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from other import str_to_class, convert_case
+from .other import str_to_class, convert_case
 import math
 
 

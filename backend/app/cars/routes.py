@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from flask_login import login_required
-from cars import CarService
+from .cars import CarService
 
 cars_bp = Blueprint("cars", __name__)
 
