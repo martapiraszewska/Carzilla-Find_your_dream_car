@@ -101,14 +101,17 @@ class EmployeeService:
 
     def search(args, search_fields):
         query = Employee.query
-
+        print("args =", args)
         for arg in args:
             if arg not in search_fields:  # security check
                 continue
             value = args[arg]
 
+            print(arg, args[arg])
             # Dopasowanie do kolumny w modelu, z użyciem 'ilike' dla tekstowych pól
-            if isinstance(search_fields[arg].type, db.String):  # Dla tekstowych kolumn
+            if isinstance(
+                getattr(Employee, arg).type, db.String
+            ):  # Dla tekstowych kolumn
                 query = query.filter(search_fields[arg].ilike(f"%{value}%"))
             else:  # Dla innych pól (np. liczbowych, datowych)
                 query = query.filter(search_fields[arg] == value)

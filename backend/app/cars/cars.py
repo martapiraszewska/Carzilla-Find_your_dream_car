@@ -1,6 +1,6 @@
 from typing import List
-from utils.validation import Valid
-from models import db, Car
+from ..utils.validation import Valid
+from ..models import db, Car
 
 
 class CarService:
@@ -76,11 +76,14 @@ class CarService:
     def search(criteria, search_fields):
         query = Car.query
 
+        # print(criteria)
         for arg in criteria:
+            print(arg, criteria[arg])
             if arg not in search_fields:  # security check
                 continue
             value = criteria[arg]
-            query = query.filter(search_fields[arg].ilike(f"%{value}%"))
+            # print(value, getattr(Car, arg).ilike(f"%{value}%"))
+            query = query.filter(getattr(Car, arg).ilike(f"%{value}%"))
 
         cars: List[Car] = query.all()
 
