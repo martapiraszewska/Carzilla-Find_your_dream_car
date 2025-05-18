@@ -95,7 +95,7 @@ CREATE TABLE "Invoice" (
   "Invoice_ID" integer PRIMARY KEY,
   "Status" text NOT NULL,
   "Issue_date" date,
-  "NIP" integer NOT NULL
+  "NIP" bigint NOT NULL
 );
 
 CREATE TABLE "Employee_stats" (
@@ -158,6 +158,49 @@ AFTER INSERT ON "Transaction"
 FOR EACH ROW
 EXECUTE FUNCTION update_employee_stats();
 
+CREATE OR REPLACE FUNCTION insert_invoice()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF LENGTH(NEW."NIP"::text) != 10 THEN
+    RAISE EXCEPTION 'NIP must be exactly 10 digits. Got: %', NEW."NIP";
+  END IF;
+
+  IF NEW."Issue_date" IS NULL THEN
+    NEW."Issue_date" := CURRENT_DATE;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_invoice
+BEFORE INSERT ON "Invoice"
+FOR EACH ROW
+EXECUTE FUNCTION insert_invoice();
+
+CREATE OR REPLACE FUNCTION insert_position_history()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "Position_history" SET "Date_end" = NEW."Date_start" - INTERVAL '1 day'
+  WHERE "Employee_ID" = NEW."Employee_ID" AND "Date_end" IS NULL;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_position_history
+BEFORE INSERT ON "Position_history"
+FOR EACH ROW
+EXECUTE FUNCTION insert_position_history();
+
+CREATE OR REPLACE FUNCTION delete_car_dealer()
+RETURNS TRIGGER AS $$
+BEGIN
+  DELETE FROM "Address" WHERE "Address_ID" = NEW."Address_ID";
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- SOME DATA
 
 INSERT INTO "City" ("City_ID", "Name", "Country") VALUES (1, 'Davisside', 'Mongolia');
@@ -201,13 +244,16 @@ INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end",
 INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end", "Position_ID", "Employee_ID") VALUES (3, '2022-06-07', '2024-09-04', 3, 2);
 INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end", "Position_ID", "Employee_ID") VALUES (4, '2023-09-03', '2025-01-30', 3, 2);
 INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end", "Position_ID", "Employee_ID") VALUES (5, '2023-10-21', '2024-06-28', 3, 2);
+INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end", "Position_ID", "Employee_ID") VALUES (6, '2023-10-21', NULL, 3, 5);
+INSERT INTO "Position_history" ("Position_history_ID", "Date_start", "Date_end", "Position_ID", "Employee_ID") VALUES (7, '2023-11-25', NULL, 1, 2);
 INSERT INTO "Transaction_type" ("Transaction_type_ID", "Name") VALUES (1, 'Purchase');
 INSERT INTO "Transaction_type" ("Transaction_type_ID", "Name") VALUES (2, 'Lease');
-INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (1, 'Issued', '2024-07-24', 2242422);
-INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (2, 'Issued', '2021-08-24', 6361226);
-INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (3, 'Issued', '2020-04-13', 3812601);
-INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (4, 'Issued', '2023-07-18', 3334724);
-INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (5, 'Issued', '2021-07-04', 1823918);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (1, 'Issued', '2024-07-24', 2242422123);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (2, 'Issued', '2021-08-24', 6361226357);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (3, 'Issued', '2020-04-13', 3812601884);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (4, 'Issued', '2023-07-18', 3334724351);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (5, 'Issued', '2021-07-04', 1823918287);
+INSERT INTO "Invoice" ("Invoice_ID", "Status", "Issue_date", "NIP") VALUES (6, 'Issued', NULL, 6983451011);
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (1, '2025-01-11', 9143, 5, 5, 1, 1);
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (2, '2025-01-05', 14904, 1, 3, 1, 2);
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (3, '2025-04-10', 19186, 5, 2, 2, 3);
