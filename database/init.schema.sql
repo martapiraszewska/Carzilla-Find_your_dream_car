@@ -301,6 +301,34 @@ BEFORE INSERT OR UPDATE ON "Position"
 FOR EACH ROW
 EXECUTE FUNCTION insert_position();
 
+-- FUNCTIONS
+
+CREATE OR REPLACE FUNCTION get_user_stats(user_id integer)
+RETURNS TABLE (
+  cars_sold bigint,
+  total_profit bigint,
+  active_since date
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    -- cars sold
+    (SELECT COUNT(*) FROM "Transaction" t
+    JOIN "Transaction_type" tt ON t."Transaction_type_ID" = tt."Transaction_type_ID"
+    WHERE t."Employee_ID" = user_id
+    AND tt."Name" = 'Purchase'),
+
+    -- total profit
+    (SELECT SUM("Value") FROM "Transaction"
+    WHERE "Employee_ID" = user_id),
+
+    -- active sinces
+    (SELECT MIN("Date") FROM "Transaction"
+    WHERE "Employee_ID" = user_id);
+
+END;
+$$ LANGUAGE plpgsql;
+
 -- SOME DATA
 
 INSERT INTO "City" ("City_ID", "Name", "Country") VALUES (1, 'Davisside', 'Mongolia');
