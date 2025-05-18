@@ -63,7 +63,7 @@ CREATE TABLE "Employee" (
   "Phone_number" text,
   "Employee_status_ID" integer NOT NULL,
   "Car_dealer_ID" integer NOT NULL,
-  "Login_credentials_ID" integer NOT NULL
+  "Login_credentials_ID" integer NOT NULL UNIQUE
 );
 
 CREATE TABLE "Employee_status" (
@@ -149,6 +149,11 @@ BEGIN
   VALUES (EXTRACT (YEAR FROM NEW."Date"), EXTRACT (MONTH FROM NEW."Date"), NEW."Employee_ID", NEW."Value")
   ON CONFLICT ("Year", "Month", "Employee_ID")
   DO UPDATE SET "Sales_sum" = "Employee_stats"."Sales_sum" + NEW."Value";
+  
+  IF NEW."Value" < 0 THEN
+    RAISE EXCEPTION 'Value cannot be negative';
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -200,6 +205,101 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_delete_car_dealer
+BEFORE DELETE ON "Car_dealer"
+FOR EACH ROW
+EXECUTE FUNCTION delete_car_dealer();
+
+CREATE OR REPLACE FUNCTION insert_car()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."Mileage" < 0 THEN
+    RAISE EXCEPTION 'Mileage cannot be negative';
+  END IF;
+
+  IF NEW."Price" < 0 THEN
+    RAISE EXCEPTION 'Price cannot be negative';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_car
+BEFORE INSERT OR UPDATE ON "Car"
+FOR EACH ROW
+EXECUTE FUNCTION insert_car();
+
+CREATE OR REPLACE FUNCTION insert_address()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF LENGTH(NEW."Postcode") != 5 THEN
+    RAISE EXCEPTION 'Postcode must be exactly 5 digits. Got: %', NEW."Postcode";
+  END IF;
+
+  IF NEW."Street_number" < 0 THEN
+    RAISE EXCEPTION 'Street number cannot be negative';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_address
+BEFORE INSERT OR UPDATE ON "Address"
+FOR EACH ROW
+EXECUTE FUNCTION insert_address();
+
+CREATE OR REPLACE FUNCTION insert_client()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."Mail" NOT LIKE '%@%' THEN
+    RAISE EXCEPTION 'Incorrect mail format';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_client
+BEFORE INSERT OR UPDATE ON "Client"
+FOR EACH ROW
+EXECUTE FUNCTION insert_client();
+
+CREATE OR REPLACE FUNCTION insert_employee()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."Salary" < 0 THEN
+    RAISE EXCEPTION 'Salary cannot be negative';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_employee
+BEFORE INSERT OR UPDATE ON "Employee"
+FOR EACH ROW
+EXECUTE FUNCTION insert_employee();
+
+CREATE OR REPLACE FUNCTION insert_position()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."Min_salary" < 0 OR NEW."Max_salary" < 0 THEN
+    RAISE EXCEPTION 'Salary cannot be negative';
+  END IF;
+
+  IF NEW."Min_salary" > NEW."Max_salary" THEN
+    RAISE EXCEPTION 'Minimum salary cannot be greater than maximum salar';
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_insert_position
+BEFORE INSERT OR UPDATE ON "Position"
+FOR EACH ROW
+EXECUTE FUNCTION insert_position();
 
 -- SOME DATA
 
