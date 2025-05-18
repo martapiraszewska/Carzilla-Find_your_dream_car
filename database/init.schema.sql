@@ -5,12 +5,12 @@ CREATE TABLE "Car" (
   "Color" text NOT NULL,
   "Mileage" integer NOT NULL,
   "Price" integer NOT NULL,
-  "Car_Condition_ID" integer NOT NULL,
-  "Car_Dealer_ID" integer NOT NULL
+  "Condition_ID" integer NOT NULL,
+  "Dealer_ID" integer NOT NULL
 );
 
 CREATE TABLE "Car_condition" (
-  "Car_Condition_ID" integer PRIMARY KEY,
+  "Condition_ID" integer PRIMARY KEY,
   "Condition" name NOT NULL
 );
 
@@ -139,6 +139,24 @@ ALTER TABLE "Car_dealer" ADD FOREIGN KEY ("Address_ID") REFERENCES "Address" ("A
 ALTER TABLE "Employee_stats" ADD FOREIGN KEY ("Employee_ID") REFERENCES "Employee" ("Employee_ID");
 
 ALTER TABLE "Employee" ADD FOREIGN KEY ("Login_credentials_ID") REFERENCES "Login_credentials" ("Login_credentials_ID");
+
+-- TRIGGERS
+
+CREATE OR REPLACE FUNCTION update_employee_stats() 
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO "Employee_stats" ("Year", "Month", "Employee_ID", "Sales_sum")
+  VALUES (EXTRACT (YEAR FROM NEW."Date"), EXTRACT (MONTH FROM NEW."Date"), NEW."Employee_ID", NEW."Value")
+  ON CONFLICT ("Year", "Month", "Employee_ID")
+  DO UPDATE SET "Sales_sum" = "Employee_stats"."Sales_sum" + NEW."Value";
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_employee_stats
+AFTER INSERT ON "Transaction"
+FOR EACH ROW
+EXECUTE FUNCTION update_employee_stats();
 
 -- SOME DATA
 
