@@ -1,14 +1,15 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
-from models import Employee
-from employee import EmployeeService
+from ..models import Employee
+from .employee import EmployeeService
 
 employees_bp = Blueprint("employees", __name__)
 
 
-@employees_bp.route("/employees", methods=["POST"])
+@employees_bp.route("/", methods=["POST"])
 @login_required
 def create_employee():
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     required_fields = [
         "Name",
         "Surname",
@@ -22,7 +23,7 @@ def create_employee():
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/employees/<int:employee_id>", methods=["PUT"])
+@employees_bp.route("/<int:employee_id>", methods=["PUT"])
 @login_required
 def update_employee(employee_id):
     updatable_fields = [
@@ -40,15 +41,14 @@ def update_employee(employee_id):
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/employees/<int:employee_id>", methods=["DELETE"])
+@employees_bp.route("/<int:employee_id>", methods=["DELETE"])
 @login_required
 def delete_employee(employee_id):
     ans = EmployeeService.delete(employee_id)
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/employees", methods=["GET"])
-@login_required
+@employees_bp.route("/", methods=["GET"])
 def search_employees():
     # help me nie moge tutaj wejsc
     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")

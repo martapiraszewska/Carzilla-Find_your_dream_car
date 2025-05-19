@@ -5,8 +5,7 @@ from .cars import CarService
 cars_bp = Blueprint("cars", __name__)
 
 
-@cars_bp.route("/cars", methods=["POST"])
-@login_required
+@cars_bp.route("/", methods=["POST"])
 def add_car():
     required_fields = [
         "Brand",
@@ -21,14 +20,14 @@ def add_car():
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/cars/<int:car_id>", methods=["DELETE"])
+@cars_bp.route("/<int:car_id>", methods=["DELETE"])
 @login_required
 def delete_car(car_id):
     ans = CarService.add(car_id)
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/cars/<int:car_id>", methods=["PUT"])
+@cars_bp.route("/<int:car_id>", methods=["PUT"])
 @login_required
 def update_car(car_id):
     updatable_fields = [
@@ -44,8 +43,8 @@ def update_car(car_id):
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/cars", methods=["GET"])
-def search_car(criteria=None):
+@cars_bp.route("/", methods=["GET"])
+def search_car():
     search_fields = [
         "Brand",
         "Model",
@@ -56,7 +55,6 @@ def search_car(criteria=None):
         "Car_dealer_ID",
     ]
 
-    if not criteria:
-        criteria = request.get_json()
+    criteria = request.args
     ans = CarService.search(criteria, search_fields)
     return jsonify(ans)

@@ -1,6 +1,6 @@
-from utils.validation import Valid
-from utils.other import get_date_or_now
-from models import db, Employee, Position, PositionHistory
+from ..utils.validation import Valid
+from ..utils.other import get_date_or_now
+from ..models import db, Employee, Position, PositionHistory
 
 
 class EmployeeService:
