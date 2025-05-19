@@ -4,7 +4,7 @@ from flask_login import UserMixin
 
 class CarCondition(db.Model):
     __tablename__ = "Car_condition"
-    Car_Condition_ID = db.Column(db.Integer, primary_key=True)
+    Car_condition_ID = db.Column(db.Integer, primary_key=True)
     Condition = db.Column(db.String, nullable=False)
 
 
@@ -41,10 +41,10 @@ class Car(db.Model):
     Color = db.Column(db.String, nullable=False)
     Mileage = db.Column(db.Integer, nullable=False)
     Price = db.Column(db.Integer, nullable=False)
-    Car_Condition_ID = db.Column(
-        db.Integer, db.ForeignKey("Car_condition.Car_Condition_ID"), nullable=False
+    Car_condition_ID = db.Column(
+        db.Integer, db.ForeignKey("Car_condition.Car_condition_ID"), nullable=False
     )
-    Car_Dealer_ID = db.Column(
+    Car_dealer_ID = db.Column(
         db.Integer, db.ForeignKey("Car_dealer.Car_dealer_ID"), nullable=False
     )
 

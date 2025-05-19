@@ -5,12 +5,12 @@ CREATE TABLE "Car" (
   "Color" text NOT NULL,
   "Mileage" integer NOT NULL,
   "Price" integer NOT NULL,
-  "Car_Condition_ID" integer NOT NULL,
-  "Car_Dealer_ID" integer NOT NULL
+  "Car_condition_ID" integer NOT NULL,
+  "Car_dealer_ID" integer NOT NULL
 );
 
 CREATE TABLE "Car_condition" (
-  "Car_Condition_ID" integer PRIMARY KEY,
+  "Car_condition_ID" integer PRIMARY KEY,
   "Condition" name NOT NULL
 );
 
@@ -112,9 +112,9 @@ CREATE TABLE "Login_credentials" (
   "Password" text NOT NULL
 );
 
-ALTER TABLE "Car" ADD FOREIGN KEY ("Condition_ID") REFERENCES "Car_condition" ("Condition_ID");
+ALTER TABLE "Car" ADD FOREIGN KEY ("Car_condition_ID") REFERENCES "Car_condition" ("Car_condition_ID");
 
-ALTER TABLE "Car" ADD FOREIGN KEY ("Dealer_ID") REFERENCES "Car_dealer" ("Car_dealer_ID");
+ALTER TABLE "Car" ADD FOREIGN KEY ("Car_dealer_ID") REFERENCES "Car_dealer" ("Car_dealer_ID");
 
 ALTER TABLE "Transaction" ADD FOREIGN KEY ("Client_ID") REFERENCES "Client" ("Client_ID");
 
@@ -152,9 +152,9 @@ INSERT INTO "Address" ("Address_ID", "Postcode", "Street", "Street_number", "Cit
 INSERT INTO "Address" ("Address_ID", "Postcode", "Street", "Street_number", "City_ID") VALUES (3, '93152', 'Williams Inlet', 84, 3);
 INSERT INTO "Address" ("Address_ID", "Postcode", "Street", "Street_number", "City_ID") VALUES (4, '55067', 'Oconnell Square', 178, 4);
 INSERT INTO "Address" ("Address_ID", "Postcode", "Street", "Street_number", "City_ID") VALUES (5, '15204', 'Bradley Manors', 52, 5);
-INSERT INTO "Car_condition" ("Condition_ID", "Condition") VALUES (1, 'New');
-INSERT INTO "Car_condition" ("Condition_ID", "Condition") VALUES (2, 'Used');
-INSERT INTO "Car_condition" ("Condition_ID", "Condition") VALUES (3, 'Damaged');
+INSERT INTO "Car_condition" ("Car_condition_ID", "Condition") VALUES (1, 'New');
+INSERT INTO "Car_condition" ("Car_condition_ID", "Condition") VALUES (2, 'Used');
+INSERT INTO "Car_condition" ("Car_condition_ID", "Condition") VALUES (3, 'Damaged');
 INSERT INTO "Car_dealer" ("Car_dealer_ID", "Name", "Address_ID") VALUES (1, 'Randolph PLC', 1);
 INSERT INTO "Car_dealer" ("Car_dealer_ID", "Name", "Address_ID") VALUES (2, 'Perez, Brock and Ward', 2);
 INSERT INTO "Car_dealer" ("Car_dealer_ID", "Name", "Address_ID") VALUES (3, 'Kemp-Mccullough', 3);
@@ -195,11 +195,11 @@ INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Empl
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (3, '2025-04-10', 19186, 5, 2, 2, 3);
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (4, '2025-03-12', 11830, 2, 4, 1, 4);
 INSERT INTO "Transaction" ("Transaction_ID", "Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID") VALUES (5, '2025-04-23', 6646, 4, 1, 1, 5);
-INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES (1, 'Mercedes', 'alone', 'Snow', 116045, 44559, 2, 2);
-INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES (2, 'Toyota', 'get', 'LightYellow', 9192, 49448, 2, 3);
-INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES (3, 'Moore-Lewis', 'build', 'Wheat', 137246, 37922, 2, 1);
-INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES (4, 'BMW', 'data', 'DarkGoldenRod', 28953, 25562, 2, 2);
-INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Condition_ID", "Dealer_ID") VALUES (5, 'Long Inc', 'region', 'Crimson', 160760, 18506, 2, 2);
+INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Car_condition_ID", "Car_dealer_ID") VALUES (1, 'Mercedes', 'alone', 'Snow', 116045, 44559, 2, 2);
+INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Car_condition_ID", "Car_dealer_ID") VALUES (2, 'Toyota', 'get', 'LightYellow', 9192, 49448, 2, 3);
+INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Car_condition_ID", "Car_dealer_ID") VALUES (3, 'Moore-Lewis', 'build', 'Wheat', 137246, 37922, 2, 1);
+INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Car_condition_ID", "Car_dealer_ID") VALUES (4, 'BMW', 'data', 'DarkGoldenRod', 28953, 25562, 2, 2);
+INSERT INTO "Car" ("Car_ID", "Brand", "Model", "Color", "Mileage", "Price", "Car_condition_ID", "Car_dealer_ID") VALUES (5, 'Long Inc', 'region', 'Crimson', 160760, 18506, 2, 2);
 INSERT INTO "Employee_stats" ("Year", "Month", "Employee_ID", "Sales_sum") VALUES (2023, 1, 1, 9);
 INSERT INTO "Employee_stats" ("Year", "Month", "Employee_ID", "Sales_sum") VALUES (2023, 1, 2, 6);
 INSERT INTO "Employee_stats" ("Year", "Month", "Employee_ID", "Sales_sum") VALUES (2023, 1, 3, 4);
