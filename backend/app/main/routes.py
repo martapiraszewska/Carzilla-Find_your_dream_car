@@ -9,27 +9,6 @@ main_bp = Blueprint("main", __name__)
 # and of course validation
 
 
-# @main_bp.route("/search", methods=["GET"])
-# def search_cars():
-#     # Example: /search?brand=Toyota&model=Corolla
-#     return search_car(request.args)
-
-
-# @main_bp.route("/employees", methods=["GET"])
-# def manage_employees():
-#     if request.method == "GET":
-#         employees: List[Employee] = Employee.query.all()
-#         return jsonify(
-#             [
-#                 {
-#                     "id": employee.Employee_ID,
-#                     "name": f"{employee.Name} {employee.Surname}",
-#                 }
-#                 for employee in employees
-#             ]
-#         )
-
-
 @main_bp.route("/", methods=["GET"])
 def main_page():
     return """
