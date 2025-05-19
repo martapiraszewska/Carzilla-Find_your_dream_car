@@ -6,6 +6,7 @@ from .models import Employee
 
 login_manager = LoginManager()
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -17,11 +18,17 @@ def create_app():
     from .main import main_bp
     from .dashboard import dashboard_bp
 
+    from .cars import cars_bp
+    from .employees import employees_bp
+
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp, url_prefix="/")
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
+    app.register_blueprint(cars_bp, url_prefix="/cars")
+    app.register_blueprint(employees_bp, url_prefix="/employees")
 
     return app
+
 
 @login_manager.user_loader
 def load_user(user_id):

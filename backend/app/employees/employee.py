@@ -1,6 +1,6 @@
-from utils.validation import Valid
-from utils.other import get_date_or_now
-from models import db, Employee, Position, PositionHistory
+from ..utils.validation import Valid
+from ..utils.other import get_date_or_now
+from ..models import db, Employee, Position, PositionHistory
 
 
 class EmployeeService:
@@ -101,13 +101,11 @@ class EmployeeService:
 
     def search(args, search_fields):
         query = Employee.query
-        print("args =", args)
         for arg in args:
             if arg not in search_fields:  # security check
                 continue
             value = args[arg]
 
-            print(arg, args[arg])
             # Dopasowanie do kolumny w modelu, z użyciem 'ilike' dla tekstowych pól
             if isinstance(
                 getattr(Employee, arg).type, db.String

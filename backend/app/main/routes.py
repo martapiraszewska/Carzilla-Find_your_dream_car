@@ -9,42 +9,21 @@ main_bp = Blueprint("main", __name__)
 # and of course validation
 
 
-@main_bp.route("/search", methods=["GET"])
-def search_cars():
-    # Example: /search?brand=Toyota&model=Corolla
-    return search_car(request.args)
-
-
-@main_bp.route("/employees", methods=["GET"])
-def manage_employees():
-    if request.method == "GET":
-        employees: List[Employee] = Employee.query.all()
-        return jsonify(
-            [
-                {
-                    "id": employee.Employee_ID,
-                    "name": f"{employee.Name} {employee.Surname}",
-                }
-                for employee in employees
-            ]
-        )
-
-
 @main_bp.route("/", methods=["GET"])
 def main_page():
     return """
     <!DOCTYPE html>
     <html lang="pl">
     <head>
-    <meta charset="UTF-8">
-    <title>REST API Tester</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
-        label { display: block; margin-top: 10px; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; }
-        button { margin-top: 15px; padding: 10px 20px; }
-        pre { background: #f4f4f4; padding: 10px; white-space: pre-wrap; border: 1px solid #ccc; }
-    </style>
+        <meta charset="UTF-8">
+        <title>REST API Tester</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+            label { display: block; margin-top: 10px; }
+            input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; }
+            button { margin-top: 15px; padding: 10px 20px; }
+            pre { background: #f4f4f4; padding: 10px; white-space: pre-wrap; border: 1px solid #ccc; }
+        </style>
     </head>
     <body>
 
@@ -52,31 +31,31 @@ def main_page():
 
     <form id="apiForm">
         <label>
-        Endpoint:
-        <select id="endpoint">
-            <option value="/employees">/employees</option>
-            <option value="/search">/search</option>
-        </select>
+            Endpoint:
+            <select id="endpoint">
+                <option value="/employees">/employees</option>
+                <option value="/cars">/cars</option>
+            </select>
         </label>
 
         <label>
-        Metoda:
-        <select id="method">
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-        </select>
+            Metoda:
+            <select id="method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+            </select>
         </label>
 
         <label>
-        ID zasobu (opcjonalne):
-        <input type="text" id="resourceId" placeholder="np. 1">
+            ID zasobu (opcjonalne):
+            <input type="text" id="resourceId" placeholder="np. 1">
         </label>
 
         <label>
-        Dane (klucz=wartość, rozdzielone enterem):
-        <textarea id="formData" placeholder="name=Jan&#10;position=Driver"></textarea>
+            Dane (klucz=wartość, rozdzielone enterem):
+            <textarea id="formData" placeholder="name=Jan&#10;position=Driver"></textarea>
         </label>
 
         <button type="submit">Wyślij żądanie</button>
@@ -87,54 +66,64 @@ def main_page():
 
     <script>
         document.getElementById('apiForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+            e.preventDefault();
 
-        const endpoint = document.getElementById('endpoint').value;
-        const method = document.getElementById('method').value;
-        const id = document.getElementById('resourceId').value.trim();
-        const formDataRaw = document.getElementById('formData').value.trim();
+            const endpoint = document.getElementById('endpoint').value;
+            const method = document.getElementById('method').value;
+            const id = document.getElementById('resourceId').value.trim();
+            const formDataRaw = document.getElementById('formData').value.trim();
 
-        let url = id ? `${endpoint}/${id}` : endpoint;
-        let options = { method: method };
+            let url = id ? `${endpoint}/${id}` : endpoint;
+            let options = { method: method };
 
-        const data = new URLSearchParams();
-        formDataRaw.split(`\n`).forEach(line => {
-        const [key, value] = line.split('=');
-        if (key && value !== undefined) data.append(key.trim(), value.trim());
-        });
+            let data = null;
 
-        if (method === 'GET' || method === 'DELETE') {
-        const query = data.toString();
-        if (query) {
-            url += `?${query}`;
-        }
-        } else if (method === 'POST' || method === 'PUT') {
-        options.body = data;
-        }
+            if (formDataRaw) {
+                const formData = {};
+                formDataRaw.split(`\n`).forEach(line => {
+                    const [key, value] = line.split('=');
+                    if (key && value !== undefined) {
+                        formData[key.trim()] = value.trim();
+                    }
+                });
 
-        try {
-            console.log("Finalny URL:", url);
-            console.log("Opcje:", options);
-            const response = await fetch(url, options);
-            const contentType = response.headers.get('Content-Type') || '';
-            let text;
-            if (contentType.includes('application/json')) {
-            const json = await response.json();
-            text = JSON.stringify(json, null, 2);
-            } else {
-            text = await response.text();
+                if (method === 'POST' || method === 'PUT') {
+                    // Przygotowanie danych do wysłania w formacie JSON dla POST/PUT
+                    options.headers = { 'Content-Type': 'application/json' };
+                    options.body = JSON.stringify(formData);
+                } else if (method === 'GET' || method === 'DELETE') {
+                    // Przygotowanie zapytania z parametrami URL dla GET/DELETE
+                    const query = new URLSearchParams(formData).toString();
+                    if (query) {
+                        url += `?${query}`;
+                    }
+                }
             }
 
-            document.getElementById('responseOutput').textContent =
-            `Status: ${response.status} ${response.statusText}\n\n${text}`;
-        } catch (error) {
-            document.getElementById('responseOutput').textContent = 'Błąd sieci: ' + error;
-        }
+            try {
+                console.log("Finalny URL:", url);
+                console.log("Opcje:", options);
+                const response = await fetch(url, options);
+                const contentType = response.headers.get('Content-Type') || '';
+                let text;
+                if (contentType.includes('application/json')) {
+                    const json = await response.json();
+                    text = JSON.stringify(json, null, 2);
+                } else {
+                    text = await response.text();
+                }
+
+                document.getElementById('responseOutput').textContent =
+                    `Status: ${response.status} ${response.statusText}\n\n${text}`;
+            } catch (error) {
+                document.getElementById('responseOutput').textContent = 'Błąd sieci: ' + error;
+            }
         });
     </script>
 
     </body>
     </html>
+
 
 
 
