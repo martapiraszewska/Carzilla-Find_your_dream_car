@@ -39,12 +39,13 @@ def update_car(car_id):
         "Car_condition_ID",
         "Car_dealer_ID",
     ]
-    ans = CarService.update(request.get_json(), updatable_fields)
+    ans = CarService.update(car_id, request.get_json(), updatable_fields)
     return jsonify(ans[0]), ans[1]
 
 
 @cars_bp.route("/", methods=["GET"])
 def search_car():
+    # Example: /cars?brand=Toyota&model=Corolla
     search_fields = [
         "Brand",
         "Model",

@@ -76,23 +76,17 @@ class CarService:
     def search(criteria, search_fields):
         query = Car.query
 
-        print(criteria)
         for arg in criteria:
-            print(arg, criteria[arg])
+            # print(arg, criteria[arg])
             if arg not in search_fields:  # security check
                 continue
             value = criteria[arg]
-            print("value", value)
-            # print(value, getattr(Car, arg).ilike(f"%{value}%"))
-            # Car.Brand
-            # query = query.filter(getattr(Car, arg).ilike(f"%{value}%"))
             if isinstance(getattr(Car, arg).type, db.String):  # Dla tekstowych kolumn
                 query = query.filter(getattr(Car, arg).ilike(f"%{value}%"))
             else:  # Dla innych pól (np. liczbowych, datowych)
                 query = query.filter(getattr(Car, arg) == value)
 
         cars: List[Car] = query.all()
-        print("cars:", cars)
 
         return [
             {

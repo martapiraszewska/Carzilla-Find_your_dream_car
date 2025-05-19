@@ -9,7 +9,6 @@ employees_bp = Blueprint("employees", __name__)
 @employees_bp.route("/", methods=["POST"])
 @login_required
 def create_employee():
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     required_fields = [
         "Name",
         "Surname",
@@ -50,8 +49,6 @@ def delete_employee(employee_id):
 
 @employees_bp.route("/", methods=["GET"])
 def search_employees():
-    # help me nie moge tutaj wejsc
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     search_fields = {
         "Name": Employee.Name,
         "Surname": Employee.Surname,
@@ -63,6 +60,5 @@ def search_employees():
         "Car_dealer_id": Employee.Car_dealer_ID,
         "Login_credentials_id": Employee.Login_credentials_ID,
     }
-    print("aaaaa")
     ans = EmployeeService.search(request.args, search_fields)
     return jsonify(ans)
