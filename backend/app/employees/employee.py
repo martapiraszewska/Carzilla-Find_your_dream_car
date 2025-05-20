@@ -140,6 +140,9 @@ class EmployeeService:
 
         try:
             # Ustawienie daty końca na pozycji
+
+            # trigger on database required to change in transaction table employee id to null
+
             history = PositionHistory.query.filter_by(
                 Employee_ID=employee_id, Date_end=None
             ).first()

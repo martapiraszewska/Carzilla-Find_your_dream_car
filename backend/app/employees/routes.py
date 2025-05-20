@@ -48,6 +48,7 @@ def delete_employee(employee_id):
 
 
 @employees_bp.route("/", methods=["GET"])
+@login_required
 def search_employees():
     search_fields = {
         "Name": Employee.Name,
