@@ -2,6 +2,12 @@ import random
 import string
 import json
 
+cars_nb = 600
+car_dealers_nb = 30
+clients_nb = 100
+transactions_nb = 200
+employees_nb = 100
+
 with open("./database/seed_data.json", "r") as fh:
     data = json.load(fh)
 
@@ -18,12 +24,6 @@ invoice_status = data["invoice_status"]
 cities = data["cities"]
 streets = data["streets"]
 
-cars_nb = 60
-car_dealers_nb = 30
-clients_nb = 100
-transactions_nb = 200
-employees_nb = 100
-
 address_ids = list(range(1, car_dealers_nb + 1))
 invoice_ids = list(range(1, transactions_nb + 1))
 login_creditials_ids = list(range(1, employees_nb + 1))
@@ -32,7 +32,7 @@ cities_list = [city for countries in cities.values() for city in countries]
 
 def generate_cars():
     car_table = ""
-    for car_id in range(cars_nb):
+    for car_id in range(1, cars_nb + 1):
         brand = random.choice(list(cars.keys()))
         model = random.choice(cars[brand])
         color = random.choice(colors)
@@ -54,14 +54,14 @@ def generate_car_conditions():
     for id, condition in enumerate(car_conditions):
         car_condition_table += (
             "INSERT INTO \"Car_condition\" (\"Car_condition_ID\", "
-            f"\"Condition\") VALUES ({id}, '{condition}');\n"
+            f"\"Condition\") VALUES ({id + 1}, '{condition}');\n"
         )
     return car_condition_table
 
 
 def generate_car_dealers():
     car_dealer_table = ""
-    for car_dealer_id in range(car_dealers_nb):
+    for car_dealer_id in range(1, car_dealers_nb + 1):
         name = random.choice(car_dealers)
         car_dealers.remove(name)
         address_id = random.choice(address_ids)
@@ -89,7 +89,7 @@ def generate_cities():
 
 def generate_addressses():
     address_table = ""
-    for address_id in range(car_dealers_nb):
+    for address_id in range(1, car_dealers_nb + 1):
         postcode = random.choices(string.digits, k=5)
         postcode = ''.join(postcode)
         cities_keys = list(cities.keys())
@@ -108,7 +108,7 @@ def generate_addressses():
 
 def generate_clients():
     client_table = ""
-    for client_id in range(clients_nb):
+    for client_id in range(1, clients_nb + 1):
         gender = random.choice(["M", "F"])
         full_name = random.choice(names[gender])
         names[gender].remove(full_name)
@@ -118,7 +118,7 @@ def generate_clients():
         phone = random.randint(100000000, 999999999)
         client_table += (
             "INSERT INTO \"Client\" (\"Client_ID\", \"Name\", \"Surname\", "
-            f"\"Gender\", \"Mail\", \"Phone\") VALUES ({client_id}, '{name}' "
+            f"\"Gender\", \"Mail\", \"Phone\") VALUES ({client_id}, '{name}', "
             f"'{surname}', '{gender}', '{mail}', '{phone}');\n"
         )
     return client_table
@@ -127,7 +127,7 @@ def generate_clients():
 def generate_transactions_and_invoices():
     transaction_table = ""
     invoice_table = ""
-    for transaction_id in range(transactions_nb):
+    for transaction_id in range(1, transactions_nb + 1):
         year = random.randint(2014, 2024)
         month = random.randint(1, 12)
         if month == 2:
@@ -144,9 +144,9 @@ def generate_transactions_and_invoices():
         invoice_ids.remove(invoice_id)
         transaction_table += (
             "INSERT INTO \"Transaction\" (\"Transaction_ID\", \"Date\", \""
-            "Value\", \"Client_ID\", \"Employee_ID\", \"Transaction_type_ID\" "
-            f"\"Invoice_ID\") VALUES ({transaction_id}, '{year}-{month:02}-"
-            f"{day:02}', {value} {client_id}, {employee_id}, "
+            "Value\", \"Client_ID\", \"Employee_ID\", \"Transaction_type_ID\","
+            f" \"Invoice_ID\") VALUES ({transaction_id}, '{year}-{month:02}-"
+            f"{day:02}', {value}, {client_id}, {employee_id}, "
             f"{transaction_type_id}, {invoice_id});\n"
         )
         invoice_table += (generate_invoice(invoice_id, year, month, day))
@@ -155,8 +155,9 @@ def generate_transactions_and_invoices():
 
 def generate_invoice(id, year, month, day):
     status = random.choice(invoice_status)
-    nip = random.choices(string.digits, k=10)
-    nip = ''.join(nip)
+    first_digit = random.choice(string.digits[1:])
+    other_digits = random.choices(string.digits, k=9)
+    nip = first_digit + ''.join(other_digits)
     invoice = "INSERT INTO \"Invoice\" (\"Invoice_ID\", \"Status\", "
     invoice += f"\"Issue_date\", \"NIP\") VALUES ({id}, '{status}', "
     invoice += f"'{year}-{month:02}-{day:02}', {nip});\n"
@@ -165,7 +166,7 @@ def generate_invoice(id, year, month, day):
 
 def generate_employees():
     employee_table = ""
-    for employee_id in range(employees_nb):
+    for employee_id in range(1, employees_nb + 1):
         gender = random.choice(["M", "F"])
         full_name = random.choice(names[gender])
         names[gender].remove(full_name)
@@ -200,7 +201,7 @@ def generate_employee_status():
     for id, status in enumerate(employee_status):
         employee_status_table += (
             "INSERT INTO \"Employee_status\" (\"Employee_status_ID\", "
-            f"\"Status_name\") VALUES ({id}, '{status}');\n"
+            f"\"Status_name\") VALUES ({id + 1}, '{status}');\n"
         )
     return employee_status_table
 
@@ -208,11 +209,11 @@ def generate_employee_status():
 def generate_positions():
     position_table = ""
     for id, name in enumerate(position_names):
-        min_salary = 100 * random.randint(40, 160)
-        max_salary = 100 * random.randint(min_salary / 100, 200)
+        min_salary = random.randint(4000, 16000)
+        max_salary = random.randint(min_salary, 20000)
         position_table += (
             "INSERT INTO \"Position\" (\"Position_ID\", \"Name\", "
-            f"\"Min_salary\", \"Max_salary\") VALUES ({id}, '{name}', "
+            f"\"Min_salary\", \"Max_salary\") VALUES ({id + 1}, '{name}', "
             f"{min_salary}, {max_salary});\n"
         )
     return position_table
@@ -223,14 +224,14 @@ def generate_transaction_type():
     for id, type in enumerate(transaction_types):
         transaction_type_table += (
             "INSERT INTO \"Transaction_type\" (\"Transaction_type_ID\", "
-            f"\"Name\") VALUES ({id}, '{type}');\n"
+            f"\"Name\") VALUES ({id + 1}, '{type}');\n"
         )
     return transaction_type_table
 
 
 def generate_login_credentials():
     login_credentials_table = ""
-    for id in range(employees_nb):
+    for id in range(1, employees_nb + 1):
         login_length = random.randint(5, 10)
         login = random.choices(string.ascii_letters, k=login_length)
         login = ''.join(login)
@@ -248,7 +249,7 @@ def generate_login_credentials():
 
 def generate_position_history():
     position_history_table = ""
-    for id in range(employees_nb):
+    for id in range(1, employees_nb + 1):
         year = random.randint(2014, 2024)
         month = random.randint(1, 12)
         if month == 2:
@@ -257,30 +258,32 @@ def generate_position_history():
             day = random.randint(1, 30)
         else:
             day = random.randint(1, 31)
+        date_end = "NULL"
         position_id = random.randint(1, len(position_names))
         position_history_table += (
             "INSERT INTO \"Position_history\" (\"Position_history_ID\", "
             "\"Date_start\", \"Date_end\", \"Position_ID\", \"Employee_ID\") "
-            f"VALUES ({id}, '{year}-{month:02}-{day:02}', 'NULL', {id}, "
-            f"{position_id});\n"
+            f"VALUES ({id}, '{year}-{month:02}-{day:02}', {date_end}, "
+            f"{position_id}, {id});\n"
         )
 
     return position_history_table
 
 
-with open('./database/seed_data.sql', 'w') as fh:
-    fh.write(generate_cars())
-    fh.write(generate_car_conditions())
-    fh.write(generate_car_dealers())
-    fh.write(generate_cities())
-    fh.write(generate_addressses())
-    fh.write(generate_clients())
-    transactions, invoices = generate_transactions_and_invoices()
-    fh.write(transactions)
-    fh.write(invoices)
-    fh.write(generate_employees())
-    fh.write(generate_employee_status())
-    fh.write(generate_positions())
-    fh.write(generate_transaction_type())
-    fh.write(generate_login_credentials())
-    fh.write(generate_position_history())
+if __name__ == "__main__":
+    with open('./database/seed_data.sql', 'w') as fh:
+        fh.write(generate_cities())
+        fh.write(generate_addressses())
+        fh.write(generate_car_conditions())
+        fh.write(generate_car_dealers())
+        fh.write(generate_employee_status())
+        fh.write(generate_login_credentials())
+        fh.write(generate_positions())
+        fh.write(generate_employees())
+        fh.write(generate_clients())
+        fh.write(generate_transaction_type())
+        transactions, invoices = generate_transactions_and_invoices()
+        fh.write(invoices)
+        fh.write(transactions)
+        fh.write(generate_cars())
+        fh.write(generate_position_history())
