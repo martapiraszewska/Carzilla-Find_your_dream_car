@@ -19,12 +19,16 @@ def create_app():
     from .dashboard import dashboard_bp
 
     from .cars import cars_bp
+    from .car_conditions import car_conditions_bp
+    from .car_dealers import car_dealers_bp
     from .employees import employees_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp, url_prefix="/")
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(cars_bp, url_prefix="/cars")
+    app.register_blueprint(car_conditions_bp, url_prefix="/car_conditions")
+    app.register_blueprint(car_dealers_bp, url_prefix="/car_dealers")
     app.register_blueprint(employees_bp, url_prefix="/employees")
 
     return app
