@@ -1,6 +1,6 @@
 from ..utils.validation import Valid
 from ..utils.other import get_date_or_now
-from ..models import db, Employee, Position, PositionHistory, EmployeeStatus
+from ..models import db, Employee, Position, PositionHistory, EmployeeStatus, CarDealer
 
 
 class EmployeeService:
@@ -8,6 +8,12 @@ class EmployeeService:
         valid = Valid()
         valid.valid_presence(data, required_fields)
         valid.valid_date(data["Date_of_birth"])
+        if isinstance(data["Car_dealer_ID"], str):
+            data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
+        if isinstance(data["Employee_status_ID"], str):
+            data["Employee_status_ID"] = get_employee_status_id_by_name(
+                data["Employee_status_ID"]
+            )
         valid.valid_foreign_keys(required_fields)
 
         phone = data.get("Phone_number")
@@ -219,3 +225,19 @@ class EmployeeService:
             raise Exception("Not found given employee status")
 
         return status_entry.Status_name
+
+
+def get_car_dealer_id_by_name(name):
+    dealer_entry = CarDealer.query.filter_by(Name=name).first()
+    if not dealer_entry:
+        raise Exception("Car dealer name does not correspond to any car dealer entry")
+
+    return dealer_entry.Car_dealer_ID
+
+
+def get_employee_status_id_by_name(name):
+    status_entry = EmployeeStatus.query.filter_by(Status_name=name).first()
+    if not status_entry:
+        raise Exception("Employee status name does not correspond to any status entry")
+
+    return status_entry.Employee_status_ID
