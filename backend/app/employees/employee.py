@@ -121,6 +121,11 @@ class EmployeeService:
             setattr(
                 emp, "Status_name", EmployeeService._get_status_name_by_employee(emp)
             )
+            setattr(
+                emp,
+                "Position_name",
+                EmployeeService._get_position_of_employee(emp.Employee_ID, None),
+            )
 
         return [
             {
@@ -135,6 +140,7 @@ class EmployeeService:
                 "Car_dealer_ID": emp.Car_dealer_ID,
                 "Login_credentials_ID": emp.Login_credentials_ID,
                 "Status_name": emp.Status_name,
+                "Position_name": emp.Position_name,
             }
             for emp in employees
         ]
@@ -198,7 +204,10 @@ class EmployeeService:
             Employee_ID=employee_id, Date_end=None
         ).first()
         if not current_history:
-            raise Exception("No active position found for employee")
+            raise Exception(
+                "No active position found for employee"
+                + "Often throws exeption because database is shitty now because in position history are only entries of workers that ended their job so i am unable to find anything. But once the database is at least ok it would work"
+            )
 
         position_id = data.get("Position_ID", current_history.Position_ID)
 
