@@ -1,6 +1,6 @@
 from ..utils.validation import Valid
 from ..utils.other import get_date_or_now
-from ..models import db, Employee, Position, PositionHistory
+from ..models import db, Employee, Position, PositionHistory, EmployeeStatus
 
 
 class EmployeeService:
@@ -117,6 +117,11 @@ class EmployeeService:
         # employees: List[Employee] = query.all()
         employees = query.all()
 
+        for emp in employees:
+            setattr(
+                emp, "Status_name", EmployeeService._get_status_name_by_employee(emp)
+            )
+
         return [
             {
                 "Employee_ID": emp.Employee_ID,
@@ -129,6 +134,7 @@ class EmployeeService:
                 "Employee_status_ID": emp.Employee_status_ID,
                 "Car_dealer_ID": emp.Car_dealer_ID,
                 "Login_credentials_ID": emp.Login_credentials_ID,
+                "Status_name": emp.Status_name,
             }
             for emp in employees
         ]
@@ -197,3 +203,10 @@ class EmployeeService:
         position_id = data.get("Position_ID", current_history.Position_ID)
 
         return Position.query.get(position_id)
+
+    def _get_status_name_by_employee(employee):
+        status_entry = EmployeeStatus.query.get(employee.Employee_status_ID)
+        if not status_entry:
+            raise Exception("Not found given employee status")
+
+        return status_entry.Status_name
