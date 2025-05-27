@@ -17,7 +17,7 @@ def create_employee():
         "Employee_status_ID",
         "Car_dealer_ID",
         "Login_credentials_ID",
-    ]  # there are also other non-obligatory fields that you can add
+    ]  # there are also other non-obligatory fields that you can add like salary
     ans = EmployeeService.create(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
 
