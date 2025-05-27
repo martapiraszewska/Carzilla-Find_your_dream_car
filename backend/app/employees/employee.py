@@ -238,10 +238,7 @@ class EmployeeService:
             Employee_ID=employee_id, Date_end=None
         ).first()
         if not current_history:
-            raise Exception(
-                "No active position found for employee"
-                + "Often throws exeption because database is shitty now because in position history are only entries of workers that ended their job so i am unable to find anything. But once the database is at least ok it would work"
-            )
+            raise Exception("No active position found for employee")
 
         position_id = data.get("Position_ID", current_history.Position_ID)
 
