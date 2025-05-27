@@ -1,6 +1,6 @@
 from typing import List
 from ..utils.validation import Valid
-from ..models import db, Car
+from ..models import db, Car, CarCondition, CarDealer
 
 
 class CarService:
@@ -9,6 +9,12 @@ class CarService:
         valid.valid_presence(data, required_fields)
         valid.valid_number_positive(data["Mileage"])
         valid.valid_number_positive(data["Price"])
+        if isinstance(data["Car_dealer_ID"], str):
+            data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
+        if isinstance(data["Car_condition_ID"], str):
+            data["Car_condition_ID"] = get_car_condition_id_by_name(
+                data["Car_condition_ID"]
+            )
         valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
@@ -117,3 +123,21 @@ class CarService:
         db_session.commit()
 
         return new_car.Car_ID
+
+
+def get_car_dealer_id_by_name(name):
+    dealer_entry = CarDealer.query.filter_by(Name=name).first()
+    if not dealer_entry:
+        raise Exception("Car dealer name does not correspond to any car dealer entry")
+
+    return dealer_entry.Car_dealer_ID
+
+
+def get_car_condition_id_by_name(name):
+    condition_entry = CarCondition.query.filter_by(Condition=name).first()
+    if not condition_entry:
+        raise Exception(
+            "Car condition name does not correspond to any car condition entry"
+        )
+
+    return condition_entry.Car_condition_ID
