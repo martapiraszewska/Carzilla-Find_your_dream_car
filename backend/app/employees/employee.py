@@ -8,13 +8,30 @@ class EmployeeService:
         valid = Valid()
         valid.valid_presence(data, required_fields)
         valid.valid_date(data["Date_of_birth"])
-        if isinstance(data["Car_dealer_ID"], str):
-            data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-        if isinstance(data["Employee_status_ID"], str):
-            data["Employee_status_ID"] = get_employee_status_id_by_name(
-                data["Employee_status_ID"]
-            )
-        valid.valid_foreign_keys(required_fields)
+        if not data["Car_dealer_ID"].isdigit():
+            try:
+                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
+            except Exception as e:
+                return {"error": str(e)}, 400
+
+        if not data["Employee_status_ID"].isdigit():
+            try:
+                data["Employee_status_ID"] = get_employee_status_id_by_name(
+                    data["Employee_status_ID"]
+                )
+            except Exception as e:
+                return {"error": str(e)}, 400
+
+        if data.get("Position_ID"):
+            if not data["Position_ID"].isdigit():
+                try:
+                    data["Position_ID"] = get_employee_position_id_by_name(
+                        data["Position_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
+
+        valid.valid_foreign_keys(data)
 
         phone = data.get("Phone_number")
         if phone:
@@ -22,7 +39,10 @@ class EmployeeService:
 
         salary = data.get("Salary")
         if salary:
-            position = Position.query.get(data["Position_ID"])
+            try:
+                position = Position.query.get(data["Position_ID"])
+            except Exception:
+                return {"error": "required 'Position_ID' parameter"}, 400
             if not position:
                 return {"error": "Invalid Position_ID"}, 400
 
@@ -127,10 +147,16 @@ class EmployeeService:
             setattr(
                 emp, "Status_name", EmployeeService._get_status_name_by_employee(emp)
             )
+            try:
+                position_name = EmployeeService._get_position_of_employee(
+                    emp.Employee_ID
+                ).Name
+            except Exception:
+                position_name = None
             setattr(
                 emp,
                 "Position_name",
-                EmployeeService._get_position_of_employee(emp.Employee_ID, None),
+                position_name,
             )
 
         return [
@@ -184,27 +210,29 @@ class EmployeeService:
             Phone_number=data.get("Phone_number"),
             Employee_status_ID=data["Employee_status_ID"],
             Car_dealer_ID=data["Car_dealer_ID"],
-            Login_credentials_ID=data["Login_credentials_ID"],
+            # Login_credentials_ID=data["Login_credentials_ID"],
         )
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
 
         date_start = get_date_or_now(data.get("Date_start"))
 
-        emp_id = employee.Employee_id
+        emp_id = employee.Employee_ID
 
-        history = PositionHistory(
-            Date_start=date_start,
-            Date_end=None,
-            Position_ID=data["Position_ID"],
-            Employee_ID=employee.Employee_ID,
-        )
-        db_session.add(history)
+        if data.get("Position_ID"):
+            history = PositionHistory(
+                Date_start=date_start,
+                Date_end=None,
+                Position_ID=data["Position_ID"],
+                Employee_ID=employee.Employee_ID,
+            )
+            db_session.add(history)
+
         db_session.commit()
 
         return emp_id
 
-    def _get_position_of_employee(employee_id, data):
+    def _get_position_of_employee(employee_id, data={}):
         # Pobieramy aktualne stanowisko jeśli nie podano nowego
         current_history = PositionHistory.query.filter_by(
             Employee_ID=employee_id, Date_end=None
@@ -241,3 +269,13 @@ def get_employee_status_id_by_name(name):
         raise Exception("Employee status name does not correspond to any status entry")
 
     return status_entry.Employee_status_ID
+
+
+def get_employee_position_id_by_name(name):
+    position_entry = Position.query.filter_by(Name=name).first()
+    if not position_entry:
+        raise Exception(
+            "Employee position name does not correspond to any position entry"
+        )
+
+    return position_entry.Position_ID

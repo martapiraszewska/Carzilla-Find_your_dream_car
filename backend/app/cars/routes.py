@@ -6,7 +6,7 @@ cars_bp = Blueprint("cars", __name__)
 
 
 @cars_bp.route("/", methods=["POST"])
-@login_required
+# @login_required
 def add_car():
     required_fields = [
         "Brand",

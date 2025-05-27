@@ -7,7 +7,7 @@ employees_bp = Blueprint("employees", __name__)
 
 
 @employees_bp.route("/", methods=["POST"])
-@login_required
+# @login_required
 def create_employee():
     required_fields = [
         "Name",
@@ -16,7 +16,6 @@ def create_employee():
         "Date_of_birth",
         "Employee_status_ID",
         "Car_dealer_ID",
-        "Login_credentials_ID",
     ]  # there are also other non-obligatory fields that you can add like salary
     ans = EmployeeService.create(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
@@ -48,7 +47,7 @@ def delete_employee(employee_id):
 
 
 @employees_bp.route("/", methods=["GET"])
-@login_required
+# @login_required
 def search_employees():
     search_fields = {
         "Employee_ID": Employee.Employee_ID,
