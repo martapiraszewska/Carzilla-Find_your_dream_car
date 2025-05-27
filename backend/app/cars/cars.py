@@ -9,12 +9,19 @@ class CarService:
         valid.valid_presence(data, required_fields)
         valid.valid_number_positive(data["Mileage"])
         valid.valid_number_positive(data["Price"])
-        if isinstance(data["Car_dealer_ID"], str):
-            data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-        if isinstance(data["Car_condition_ID"], str):
-            data["Car_condition_ID"] = get_car_condition_id_by_name(
-                data["Car_condition_ID"]
-            )
+        if not data["Car_dealer_ID"].isdigit():
+            try:
+                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
+            except Exception as e:
+                return {"error": str(e)}, 400
+
+        if not data["Car_condition_ID"].isdigit():
+            try:
+                data["Car_condition_ID"] = get_car_condition_id_by_name(
+                    data["Car_condition_ID"]
+                )
+            except Exception as e:
+                return {"error": str(e)}, 400
         valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
@@ -115,13 +122,11 @@ class CarService:
             Color=data["Color"],
             Mileage=int(data["Mileage"]),
             Price=int(data["Price"]),
-            Condition_ID=int(data["Condition_ID"]),
-            Dealer_ID=int(data["Dealer_ID"]),
+            Car_condition_ID=int(data["Car_condition_ID"]),
+            Car_dealer_ID=int(data["Car_dealer_ID"]),
         )
-
         db_session.add(new_car)
         db_session.commit()
-
         return new_car.Car_ID
 
 
