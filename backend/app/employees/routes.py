@@ -51,6 +51,7 @@ def delete_employee(employee_id):
 @login_required
 def search_employees():
     search_fields = {
+        "Employee_ID": Employee.Employee_ID,
         "Name": Employee.Name,
         "Surname": Employee.Surname,
         "Gender": Employee.Gender,

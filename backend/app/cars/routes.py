@@ -48,6 +48,7 @@ def update_car(car_id):
 def search_car():
     # Example: /cars?brand=Toyota&model=Corolla
     search_fields = [
+        "Car_ID",
         "Brand",
         "Model",
         "Color",
