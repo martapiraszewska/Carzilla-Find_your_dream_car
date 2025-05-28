@@ -26,7 +26,6 @@ streets = data["streets"]
 
 address_ids = list(range(1, car_dealers_nb + 1))
 invoice_ids = list(range(1, transactions_nb + 1))
-login_creditials_ids = list(range(1, employees_nb + 1))
 cities_list = [city for countries in cities.values() for city in countries]
 
 
@@ -183,15 +182,14 @@ def generate_employees():
         phone = random.randint(100000000, 999999999)
         status_id = random.randint(1, len(employee_status))
         car_dealer_id = random.randint(1, car_dealers_nb)
-        login_creditials_id = random.choice(login_creditials_ids)
-        login_creditials_ids.remove(login_creditials_id)
+        login_credentials_id = "NULL"
         employee_table += (
             "INSERT INTO \"Employee\" (\"Employee_ID\", \"Name\", \"Surname\","
             " \"Gender\", \"Salary\", \"Date_of_birth\", \"Phone_number\", "
             "\"Employee_status_ID\", \"Car_dealer_ID\", \"Login_credentials_ID"
             f"\") VALUES ({employee_id}, '{name}', '{surname}', '{gender}', "
             f"{salary}, '{year}-{month:02}-{day:02}', '{phone}', {status_id}, "
-            f"{car_dealer_id}, {login_creditials_id});\n"
+            f"{car_dealer_id}, {login_credentials_id});\n"
         )
     return employee_table
 
@@ -229,26 +227,10 @@ def generate_transaction_type():
     return transaction_type_table
 
 
-def generate_login_credentials():
-    login_credentials_table = ""
-    for id in range(1, employees_nb + 1):
-        login_length = random.randint(5, 10)
-        login = random.choices(string.ascii_letters, k=login_length)
-        login = ''.join(login)
-        password_length = random.randint(8, 16)
-        password = random.choices(string.ascii_letters + string.digits,
-                                  k=password_length)
-        password = ''.join(password)
-        login_credentials_table += (
-            "INSERT INTO \"Login_credentials\" (\"Login_credentials_ID\","
-            f" \"Login\", \"Password\") VALUES ({id}, '{login}', "
-            f"'{password}');\n"
-        )
-    return login_credentials_table
-
-
-def generate_position_history():
+def generate_pos_history_and_login_cred():
     position_history_table = ""
+    login_credentials_table = ""
+    update_employee_table = ""
     for id in range(1, employees_nb + 1):
         year = random.randint(2014, 2024)
         month = random.randint(1, 12)
@@ -260,14 +242,45 @@ def generate_position_history():
             day = random.randint(1, 31)
         date_end = "NULL"
         position_id = random.randint(1, len(position_names))
+        if position_names[position_id - 1] == "Manager":
+            login_credentials, update_employee = generate_login_credentials(id)
+            login_credentials_table += login_credentials
+            update_employee_table += update_employee
         position_history_table += (
             "INSERT INTO \"Position_history\" (\"Position_history_ID\", "
             "\"Date_start\", \"Date_end\", \"Position_ID\", \"Employee_ID\") "
             f"VALUES ({id}, '{year}-{month:02}-{day:02}', {date_end}, "
             f"{position_id}, {id});\n"
         )
+    return (
+        position_history_table,
+        login_credentials_table,
+        update_employee_table
+    )
 
-    return position_history_table
+
+def generate_login_credentials(id):
+    login_length = random.randint(5, 10)
+    login = random.choices(string.ascii_letters, k=login_length)
+    login = ''.join(login)
+    password_length = random.randint(8, 16)
+    password = random.choices(string.ascii_letters + string.digits,
+                              k=password_length)
+    password = ''.join(password)
+    login_credentials = (
+        "INSERT INTO \"Login_credentials\" (\"Login_credentials_ID\","
+        f" \"Login\", \"Password\") VALUES ({id}, '{login}', "
+        f"'{password}');\n"
+    )
+    update_employee = update_employees(id)
+    return login_credentials, update_employee
+
+
+def update_employees(id):
+    return (
+        f"UPDATE \"Employee\" SET \"Login_credentials_ID\" = {id} "
+        f"WHERE \"Employee_ID\" = {id};\n"
+    )
 
 
 if __name__ == "__main__":
@@ -277,7 +290,6 @@ if __name__ == "__main__":
         fh.write(generate_car_conditions())
         fh.write(generate_car_dealers())
         fh.write(generate_employee_status())
-        fh.write(generate_login_credentials())
         fh.write(generate_positions())
         fh.write(generate_employees())
         fh.write(generate_clients())
@@ -286,4 +298,8 @@ if __name__ == "__main__":
         fh.write(invoices)
         fh.write(transactions)
         fh.write(generate_cars())
-        fh.write(generate_position_history())
+        (pos_history, login_credentials,
+         update_employee) = generate_pos_history_and_login_cred()
+        fh.write(pos_history)
+        fh.write(login_credentials)
+        fh.write(update_employee)
