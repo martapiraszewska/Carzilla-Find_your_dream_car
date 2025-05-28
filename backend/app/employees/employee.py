@@ -7,46 +7,49 @@ class EmployeeService:
     def create(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
-        valid.valid_date(data["Date_of_birth"])
-        if not data["Car_dealer_ID"].isdigit():
-            try:
-                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-            except Exception as e:
-                return {"error": str(e)}, 400
-
-        if not data["Employee_status_ID"].isdigit():
-            try:
-                data["Employee_status_ID"] = get_employee_status_id_by_name(
-                    data["Employee_status_ID"]
-                )
-            except Exception as e:
-                return {"error": str(e)}, 400
-
-        if data.get("Position_ID"):
-            if not data["Position_ID"].isdigit():
+        if valid.check_validity():
+            valid.valid_date(data["Date_of_birth"])
+            if not data["Car_dealer_ID"].isdigit():
                 try:
-                    data["Position_ID"] = get_employee_position_id_by_name(
-                        data["Position_ID"]
+                    data["Car_dealer_ID"] = get_car_dealer_id_by_name(
+                        data["Car_dealer_ID"]
                     )
                 except Exception as e:
                     return {"error": str(e)}, 400
 
-        valid.valid_foreign_keys(data)
+            if not data["Employee_status_ID"].isdigit():
+                try:
+                    data["Employee_status_ID"] = get_employee_status_id_by_name(
+                        data["Employee_status_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
 
-        phone = data.get("Phone_number")
-        if phone:
-            valid.valid_phone_number(phone)
+            if data.get("Position_ID"):
+                if not data["Position_ID"].isdigit():
+                    try:
+                        data["Position_ID"] = get_employee_position_id_by_name(
+                            data["Position_ID"]
+                        )
+                    except Exception as e:
+                        return {"error": str(e)}, 400
 
-        salary = data.get("Salary")
-        if salary:
-            try:
-                position = Position.query.get(data["Position_ID"])
-            except Exception:
-                return {"error": "required 'Position_ID' parameter"}, 400
-            if not position:
-                return {"error": "Invalid Position_ID"}, 400
+            valid.valid_foreign_keys(data)
 
-            valid.valid_salary(salary, position.Min_salary, position.Max_salary)
+            phone = data.get("Phone_number")
+            if phone:
+                valid.valid_phone_number(phone)
+
+            salary = data.get("Salary")
+            if salary:
+                try:
+                    position = Position.query.get(data["Position_ID"])
+                except Exception:
+                    return {"error": "required 'Position_ID' parameter"}, 400
+                if not position:
+                    return {"error": "Invalid Position_ID"}, 400
+
+                valid.valid_salary(salary, position.Min_salary, position.Max_salary)
 
         if not valid.check_validity():
             return {"error": valid.get_error_msg()}, 400

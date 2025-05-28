@@ -18,6 +18,7 @@ def create_client():
 # @login_required
 def search_clients():
     search_fields = [
+        "Client_ID",
         "Name",
         "Surname",
         "Gender",

@@ -7,22 +7,25 @@ class CarService:
     def add(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
-        valid.valid_number_positive(data["Mileage"])
-        valid.valid_number_positive(data["Price"])
-        if not data["Car_dealer_ID"].isdigit():
-            try:
-                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-            except Exception as e:
-                return {"error": str(e)}, 400
+        if valid.check_validity():
+            valid.valid_number_positive(data["Mileage"])
+            valid.valid_number_positive(data["Price"])
+            if not data["Car_dealer_ID"].isdigit():
+                try:
+                    data["Car_dealer_ID"] = get_car_dealer_id_by_name(
+                        data["Car_dealer_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
 
-        if not data["Car_condition_ID"].isdigit():
-            try:
-                data["Car_condition_ID"] = get_car_condition_id_by_name(
-                    data["Car_condition_ID"]
-                )
-            except Exception as e:
-                return {"error": str(e)}, 400
-        valid.valid_foreign_keys(data)
+            if not data["Car_condition_ID"].isdigit():
+                try:
+                    data["Car_condition_ID"] = get_car_condition_id_by_name(
+                        data["Car_condition_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
+            valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
             return {"error": valid.get_error_msg()}, 400

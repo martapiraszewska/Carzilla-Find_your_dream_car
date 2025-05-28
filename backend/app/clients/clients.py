@@ -7,9 +7,10 @@ class ClientService:
     def add(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
-        valid.valid_phone_number(data["Phone"])
-        valid.valid_email(data["Mail"])
-        valid.valid_foreign_keys(data)
+        if valid.check_validity():
+            valid.valid_phone_number(data["Phone"])
+            valid.valid_email(data["Mail"])
+            valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
             return {"error": valid.get_error_msg()}, 400
@@ -26,7 +27,7 @@ class ClientService:
             db.session.rollback()
             return {"error": "Failed to add client", "details": str(e)}, 500
 
-    def search_clients(data, search_fields):
+    def search(data, search_fields):
         query = Client.query
 
         for arg in data:
@@ -59,7 +60,7 @@ class ClientService:
             Name=data["Name"],
             Surname=data["Surname"],
             Gender=data["Gender"],
-            Email=data["Email"],
+            Mail=data["Mail"],
             Phone=data["Phone"],
         )
         db_session.add(new_client)
