@@ -113,33 +113,47 @@ CREATE TABLE "Login_credentials" (
   "Password" text NOT NULL
 );
 
-ALTER TABLE "Car" ADD FOREIGN KEY ("Car_condition_ID") REFERENCES "Car_condition" ("Car_condition_ID");
+ALTER TABLE "Car" ADD FOREIGN KEY ("Car_condition_ID")
+REFERENCES "Car_condition" ("Car_condition_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Car" ADD FOREIGN KEY ("Car_dealer_ID") REFERENCES "Car_dealer" ("Car_dealer_ID");
+ALTER TABLE "Car" ADD FOREIGN KEY ("Car_dealer_ID") 
+REFERENCES "Car_dealer" ("Car_dealer_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Transaction" ADD FOREIGN KEY ("Client_ID") REFERENCES "Client" ("Client_ID");
+ALTER TABLE "Transaction" ADD FOREIGN KEY ("Client_ID") 
+REFERENCES "Client" ("Client_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Transaction" ADD FOREIGN KEY ("Employee_ID") REFERENCES "Employee" ("Employee_ID");
+ALTER TABLE "Transaction" ADD FOREIGN KEY ("Employee_ID") 
+REFERENCES "Employee" ("Employee_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Address" ADD FOREIGN KEY ("City_ID") REFERENCES "City" ("City_ID");
+ALTER TABLE "Address" ADD FOREIGN KEY ("City_ID") 
+REFERENCES "City" ("City_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Employee" ADD FOREIGN KEY ("Employee_status_ID") REFERENCES "Employee_status" ("Employee_status_ID");
+ALTER TABLE "Employee" ADD FOREIGN KEY ("Employee_status_ID") 
+REFERENCES "Employee_status" ("Employee_status_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Employee" ADD FOREIGN KEY ("Car_dealer_ID") REFERENCES "Car_dealer" ("Car_dealer_ID");
+ALTER TABLE "Employee" ADD FOREIGN KEY ("Car_dealer_ID") 
+REFERENCES "Car_dealer" ("Car_dealer_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Position_history" ADD FOREIGN KEY ("Employee_ID") REFERENCES "Employee" ("Employee_ID");
+ALTER TABLE "Position_history" ADD FOREIGN KEY ("Employee_ID") 
+REFERENCES "Employee" ("Employee_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Position_history" ADD FOREIGN KEY ("Position_ID") REFERENCES "Position" ("Position_ID");
+ALTER TABLE "Position_history" ADD FOREIGN KEY ("Position_ID") 
+REFERENCES "Position" ("Position_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Transaction" ADD FOREIGN KEY ("Transaction_type_ID") REFERENCES "Transaction_type" ("Transaction_type_ID");
+ALTER TABLE "Transaction" ADD FOREIGN KEY ("Transaction_type_ID") 
+REFERENCES "Transaction_type" ("Transaction_type_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Transaction" ADD FOREIGN KEY ("Invoice_ID") REFERENCES "Invoice" ("Invoice_ID");
+ALTER TABLE "Transaction" ADD FOREIGN KEY ("Invoice_ID") 
+REFERENCES "Invoice" ("Invoice_ID") ON DELETE SET NULL;
 
-ALTER TABLE "Car_dealer" ADD FOREIGN KEY ("Address_ID") REFERENCES "Address" ("Address_ID");
+ALTER TABLE "Car_dealer" ADD FOREIGN KEY ("Address_ID") 
+REFERENCES "Address" ("Address_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Employee_stats" ADD FOREIGN KEY ("Employee_ID") REFERENCES "Employee" ("Employee_ID");
+ALTER TABLE "Employee_stats" ADD FOREIGN KEY ("Employee_ID") 
+REFERENCES "Employee" ("Employee_ID") ON DELETE CASCADE;
 
-ALTER TABLE "Employee" ADD FOREIGN KEY ("Login_credentials_ID") REFERENCES "Login_credentials" ("Login_credentials_ID");
+ALTER TABLE "Employee" ADD FOREIGN KEY ("Login_credentials_ID")
+REFERENCES "Login_credentials" ("Login_credentials_ID") ON DELETE SET NULL;
 
 -- TRIGGERS
 
@@ -219,13 +233,13 @@ EXECUTE FUNCTION insert_position_history();
 CREATE OR REPLACE FUNCTION delete_car_dealer()
 RETURNS TRIGGER AS $$
 BEGIN
-  DELETE FROM "Address" WHERE "Address_ID" = NEW."Address_ID";
-  RETURN NEW;
+  DELETE FROM "Address" WHERE "Address_ID" = OLD."Address_ID";
+  RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_delete_car_dealer
-BEFORE DELETE ON "Car_dealer"
+AFTER DELETE ON "Car_dealer"
 FOR EACH ROW
 EXECUTE FUNCTION delete_car_dealer();
 
