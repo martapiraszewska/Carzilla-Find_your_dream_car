@@ -6,6 +6,7 @@ cars_bp = Blueprint("cars", __name__)
 
 
 @cars_bp.route("/", methods=["POST"])
+# @login_required
 def add_car():
     required_fields = [
         "Brand",
@@ -23,7 +24,7 @@ def add_car():
 @cars_bp.route("/<int:car_id>", methods=["DELETE"])
 @login_required
 def delete_car(car_id):
-    ans = CarService.add(car_id)
+    ans = CarService.remove(car_id)
     return jsonify(ans[0]), ans[1]
 
 
@@ -47,6 +48,7 @@ def update_car(car_id):
 def search_car():
     # Example: /cars?brand=Toyota&model=Corolla
     search_fields = [
+        "Car_ID",
         "Brand",
         "Model",
         "Color",
@@ -55,7 +57,5 @@ def search_car():
         "Car_condition_ID",
         "Car_dealer_ID",
     ]
-
-    criteria = request.args
-    ans = CarService.search(criteria, search_fields)
+    ans = CarService.search(request.args, search_fields)
     return jsonify(ans)

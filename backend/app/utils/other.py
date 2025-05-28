@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 import sys
+import importlib
+from ..models import *
 
 
 def get_date_or_now(date=None, format="%Y-%m-%d"):
@@ -15,5 +17,7 @@ def str_to_class(classname):
 
 
 def convert_case(input_string):
+    if input_string == "Position":
+        return input_string
     parts = input_string.split("_")
     return parts[0].capitalize() + parts[1].capitalize()
