@@ -6,8 +6,8 @@ from .employee import EmployeeService
 employees_bp = Blueprint("employees", __name__)
 
 
-@employees_bp.route("/", methods=["POST"])
-# @login_required
+@employees_bp.route("/add", methods=["POST"])
+@login_required
 def create_employee():
     required_fields = [
         "Name",
@@ -21,7 +21,7 @@ def create_employee():
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/<int:employee_id>", methods=["PUT"])
+@employees_bp.route("/update/<int:employee_id>", methods=["PUT"])
 @login_required
 def update_employee(employee_id):
     updatable_fields = [
@@ -39,15 +39,15 @@ def update_employee(employee_id):
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/<int:employee_id>", methods=["DELETE"])
+@employees_bp.route("/remove/<int:employee_id>", methods=["DELETE"])
 @login_required
 def delete_employee(employee_id):
     ans = EmployeeService.delete(employee_id)
     return jsonify(ans[0]), ans[1]
 
 
-@employees_bp.route("/", methods=["GET"])
-# @login_required
+@employees_bp.route("/search", methods=["GET"])
+@login_required
 def search_employees():
     search_fields = {
         "Employee_ID": Employee.Employee_ID,
