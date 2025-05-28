@@ -17,6 +17,7 @@ def add_car():
         "Car_condition_ID",
         "Car_dealer_ID",
     ]
+    # you can reference to ID fields also by giving name of desired field; it will autoconvert to ID
     ans = CarService.add(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
 

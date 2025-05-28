@@ -93,7 +93,6 @@ class CarService:
         query = Car.query
 
         for arg in criteria:
-            # print(arg, criteria[arg])
             if arg not in search_fields:  # security check
                 continue
             value = criteria[arg]

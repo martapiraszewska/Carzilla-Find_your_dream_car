@@ -4,7 +4,9 @@ from ..models import db, Employee, Position, PositionHistory, EmployeeStatus, Ca
 
 
 class EmployeeService:
-    def create(data, required_fields):
+    def create(data, required_fields, add_login_creds=True):
+        if add_login_creds:
+            add_default_login_creds(data)
         valid = Valid()
         valid.valid_presence(data, required_fields)
         if valid.check_validity():
@@ -213,7 +215,7 @@ class EmployeeService:
             Phone_number=data.get("Phone_number"),
             Employee_status_ID=data["Employee_status_ID"],
             Car_dealer_ID=data["Car_dealer_ID"],
-            # Login_credentials_ID=data["Login_credentials_ID"],
+            Login_credentials_ID=data["Login_credentials_ID"],
         )
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
@@ -279,3 +281,8 @@ def get_employee_position_id_by_name(name):
         )
 
     return position_entry.Position_ID
+
+
+def add_default_login_creds(data):
+    if not data.get("Login_credentials_ID"):
+        data["Login_credentials_ID"] = 2

@@ -63,8 +63,7 @@ CREATE TABLE "Employee" (
   "Phone_number" text,
   "Employee_status_ID" integer NOT NULL,
   "Car_dealer_ID" integer NOT NULL,
-  -- "Login_credentials_ID" integer NOT NULL
-  "Login_credentials_ID" integer
+  "Login_credentials_ID" integer NOT NULL
 );
 
 CREATE TABLE "Employee_status" (

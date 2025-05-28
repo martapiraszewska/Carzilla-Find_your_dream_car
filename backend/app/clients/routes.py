@@ -5,8 +5,8 @@ from .clients import ClientService
 clients_bp = Blueprint("clients", __name__)
 
 
-@clients_bp.route("/new", methods=["POST"])
-# @login_required
+@clients_bp.route("/add", methods=["POST"])
+@login_required
 def create_client():
     required_fields = ["Name", "Surname", "Gender", "Mail", "Phone"]
 

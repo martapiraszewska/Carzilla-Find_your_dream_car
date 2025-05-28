@@ -90,6 +90,7 @@ class Employee(UserMixin, db.Model):
     Login_credentials_ID = db.Column(
         db.Integer,
         db.ForeignKey("Login_credentials.Login_credentials_ID"),
+        nullable=False,
     )
 
     # flask_login
