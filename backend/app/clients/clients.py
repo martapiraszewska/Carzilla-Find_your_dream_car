@@ -8,7 +8,7 @@ class ClientService:
         valid = Valid()
         valid.valid_presence(data, required_fields)
         valid.valid_phone_number(data["Phone"])
-        valid.valid_email(data["Email"])
+        valid.valid_email(data["Mail"])
         valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
@@ -25,6 +25,34 @@ class ClientService:
         except Exception as e:
             db.session.rollback()
             return {"error": "Failed to add client", "details": str(e)}, 500
+
+    def search_clients(data, search_fields):
+        query = Client.query
+
+        for arg in data:
+            if arg not in search_fields:  # security check
+                continue
+            value = data[arg]
+            if isinstance(
+                getattr(Client, arg).type, db.String
+            ):  # Dla tekstowych kolumn
+                query = query.filter(getattr(Client, arg).ilike(f"%{value}%"))
+            else:  # Dla innych pól (np. liczbowych, datowych)
+                query = query.filter(getattr(Client, arg) == value)
+
+        clients: List[Client] = query.all()
+
+        return [
+            {
+                "Client_ID": client.Client_ID,
+                "Name": client.Name,
+                "Surname": client.Surname,
+                "Gender": client.Gender,
+                "Phone": client.Phone,
+                "Mail": client.Mail,
+            }
+            for client in clients
+        ]
 
     def _add_client_to_db(data, db_session):
         new_client = Client(
