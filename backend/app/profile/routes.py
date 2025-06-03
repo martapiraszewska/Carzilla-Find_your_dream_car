@@ -10,7 +10,7 @@ def get_profile():
     query = text('SELECT COUNT("Transaction"."Value") AS "carsSold", SUM("Transaction"."Value") AS "profit" FROM "Transaction";')
     result = db.session.execute(query)
     sold_profit = [dict(row._mapping) for row in result]
-    query = text('SELECT COUNT(*) FROM "Car_dealer"')
+    query = text('SELECT COUNT(*) AS "carDealersAmount" FROM "Car_dealer"')
     result = db.session.execute(query)
     dealers = [dict(row._mapping) for row in result]
     retv = {**sold_profit[0], **dealers[0]} #combine dicts
