@@ -24,6 +24,8 @@ def create_app():
     from .employees import employees_bp
     from .employee_status import employee_status_bp
     from .clients import clients_bp
+    from .profile import profile_bp
+    from .stats import stats_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp, url_prefix="/")
@@ -34,6 +36,8 @@ def create_app():
     app.register_blueprint(employees_bp, url_prefix="/employees")
     app.register_blueprint(employee_status_bp, url_prefix="/employee_status")
     app.register_blueprint(clients_bp, url_prefix="/clients")
+    app.register_blueprint(profile_bp, url_prefix="/profile")
+    app.register_blueprint(stats_bp, url_prefix="/stats")
 
     return app
 

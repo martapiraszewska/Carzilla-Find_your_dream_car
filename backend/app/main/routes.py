@@ -32,6 +32,8 @@ def main_page():
             <select id="endpoint">
                 <option value="/employees">/employees</option>
                 <option value="/cars">/cars</option>
+                <option value="/profile">/profile</option>
+                <option value="/stats/employee_of_month">/stats/employee_of_month</option>
             </select>
         </label>
 
