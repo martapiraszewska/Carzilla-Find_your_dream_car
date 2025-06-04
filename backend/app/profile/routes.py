@@ -5,7 +5,7 @@ from ..models import db, Transaction
 
 profile_bp = Blueprint("profile", __name__)
 
-@profile_bp.route("/", methods=["GET"])
+@profile_bp.route("/search", methods=["GET"])
 def get_profile():
     query = text('SELECT COUNT("Transaction"."Value") AS "carsSold", SUM("Transaction"."Value") AS "profit" FROM "Transaction";')
     result = db.session.execute(query)

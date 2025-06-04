@@ -6,7 +6,7 @@ from datetime import datetime
 
 stats_bp = Blueprint("stats", __name__)
 
-@stats_bp.route("/employee_of_month", methods=["GET"])
+@stats_bp.route("/employee_of_month/search", methods=["GET"])
 def get_best_employee():
     current_month = 1 #datetime.now().month
     current_year = 2024 #datetime.now().year

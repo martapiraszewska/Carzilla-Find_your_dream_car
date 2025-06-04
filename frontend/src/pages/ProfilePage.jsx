@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ProfilePage.css';
@@ -6,6 +6,27 @@ import './ProfilePage.css';
 const ProfilePage = () => {
   const { logout } = useAuth(); // Access the logout function
   const navigate = useNavigate();
+
+  const [stats, setStats] = useState([]);
+  const handleGetData = () => {
+    const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept', 'credentials': 'include'},
+    };
+    fetch('/profile/search', options).then((response) => {
+      if (response.status === 200) {
+          response.json().then(data => {
+            setStats(data);
+            console.log(data);
+            return data;
+          })
+      }
+      else{
+          console.log("unable to fetch profile data", response);
+      }
+    });
+  };
+
 
   const handleLogout = () => {
     logout(); // Set the global login state to false
