@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './EmployeePage.css';
 import { useNavigate } from 'react-router-dom';
 import ToolBar from '../elements/ToolBar';
 
 const EmployeePage = () => {
-  const [employees, setEmployees] = useState([]);
+  // Mocked employee data
+  const [employees, setEmployees] = useState([
+    { id: 1, name: 'John Doe', position: 'Sales Manager' },
+    { id: 2, name: 'Jane Smith', position: 'Accountant' },
+    { id: 3, name: 'Alice Johnson', position: 'HR Specialist' },
+    { id: 4, name: 'Bob Brown', position: 'Mechanic' },
+  ]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch('/employees')
-      .then((response) => response.json())
-      .then((data) => setEmployees(data))
-      .catch((error) => console.error('Error fetching employees:', error));
-  }, []);
 
   const handleHire = () => {
     navigate('/hire');
   };
 
-   const handleFire = () => {
-    alert("Fired");
+  const handleFire = (id) => {
+    setEmployees((prev) => prev.filter((employee) => employee.id !== id));
   };
 
   return (

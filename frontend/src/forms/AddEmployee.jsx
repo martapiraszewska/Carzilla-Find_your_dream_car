@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import './HirePage.css';
+import './AddForm.css';
 import ToolBar from '../elements/ToolBar';
 
-const HirePage = () => {
+const AddEmployee = () => {
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -128,4 +128,4 @@ const HirePage = () => {
   );
 };
 
-export default HirePage;
+export default AddEmployee;
