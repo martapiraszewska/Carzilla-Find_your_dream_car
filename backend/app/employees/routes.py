@@ -7,7 +7,7 @@ employees_bp = Blueprint("employees", __name__)
 
 
 @employees_bp.route("/add", methods=["POST"])
-@login_required
+# @login_required
 def create_employee():
     required_fields = [
         "Name",
@@ -18,6 +18,7 @@ def create_employee():
         "Car_dealer_ID",
     ]  # there are also other non-obligatory fields that you can add like salary
     # you can reference to ID fields also by giving name of desired field; it will autoconvert to ID
+    print(request.get_json())
     ans = EmployeeService.create(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
 

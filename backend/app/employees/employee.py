@@ -17,7 +17,7 @@ class EmployeeService:
                         data["Car_dealer_ID"]
                     )
                 except Exception as e:
-                    return {"error": str(e)}, 400
+                    return {"error": str(e)}, 412
 
             if not data["Employee_status_ID"].isdigit():
                 try:
@@ -25,7 +25,7 @@ class EmployeeService:
                         data["Employee_status_ID"]
                     )
                 except Exception as e:
-                    return {"error": str(e)}, 400
+                    return {"error": str(e)}, 413
 
             if data.get("Position_ID"):
                 if not data["Position_ID"].isdigit():
@@ -34,7 +34,7 @@ class EmployeeService:
                             data["Position_ID"]
                         )
                     except Exception as e:
-                        return {"error": str(e)}, 400
+                        return {"error": str(e)}, 414
 
             valid.valid_foreign_keys(data)
 
@@ -54,7 +54,7 @@ class EmployeeService:
                 valid.valid_salary(salary, position.Min_salary, position.Max_salary)
 
         if not valid.check_validity():
-            return {"error": valid.get_error_msg()}, 400
+            return {"error": valid.get_error_msg()}, 415
 
         # Tworzenie pracownika
         try:
@@ -206,6 +206,8 @@ class EmployeeService:
             return {"error": str(e)}, 500
 
     def _add_employee_to_db(data, db_session):
+        print(data)
+        data.pop("Employee_ID", None)
         employee = Employee(
             Name=data["Name"],
             Surname=data["Surname"],
@@ -217,9 +219,9 @@ class EmployeeService:
             Car_dealer_ID=data["Car_dealer_ID"],
             Login_credentials_ID=data["Login_credentials_ID"],
         )
+        print(employee.Employee_ID)
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
-
         date_start = get_date_or_now(data.get("Date_start"))
 
         emp_id = employee.Employee_ID
