@@ -15,7 +15,7 @@ def create_client():
 
 
 @clients_bp.route("/search", methods=["GET"])
-@login_required
+# @login_required
 def search_clients():
     search_fields = [
         "Client_ID",

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ProfilePage.css';
@@ -27,6 +27,10 @@ const ProfilePage = () => {
     });
   };
 
+  useEffect(() => {
+      handleGetData();
+    }, []);
+
 
   const handleLogout = () => {
     logout(); // Set the global login state to false
@@ -39,8 +43,9 @@ const ProfilePage = () => {
       <div className="profile-stats">
         <h2>Account Stats</h2>
         <ul>
-          <li>Cars Sold: 25</li>
-          <li>Total Profit: $50,000</li>
+          <li>Number of Car Dealers: {stats.carDealersAmount}</li>
+          <li>Cars Sold: {stats.carsSold}</li>
+          <li>Total Profit: ${stats.profit}</li>
           <li>Active Since: January 2023</li>
         </ul>
       </div>
