@@ -40,7 +40,26 @@ const EmployeePage = () => {
   };
 
   const handleFire = (id) => {
-    setEmployees((prev) => prev.filter((employee) => employee.Employee_ID !== id));
+    fetch(`/employees/remove/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message || 'Employee fired successfully!');
+        // setFormData({
+        //   Name: '',
+        //   Surname: '',
+        //   Gender: '',
+        //   Salary: '',
+        //   Date_of_birth: '',
+        //   Phone_number: '',
+        //   Employee_status_id: '',
+        //   Car_dealer_id: '',
+        //   Login_credentials_id: '',
+        // });
+      })
+      .catch((error) => console.error('Error firing employee:', error));
   };
 
   return (

@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from ..models import Employee
 from .employee import EmployeeService
+from sqlalchemy import text
+from ..models import db
 
 employees_bp = Blueprint("employees", __name__)
 
@@ -42,10 +44,25 @@ def update_employee(employee_id):
 
 
 @employees_bp.route("/remove/<int:employee_id>", methods=["DELETE"])
-@login_required
+# @login_required
 def delete_employee(employee_id):
-    ans = EmployeeService.delete(employee_id)
-    return jsonify(ans[0]), ans[1]
+    # ans = EmployeeService.delete(employee_id)
+    # return jsonify(ans[0]), ans[1]
+    query = text('''UPDATE "Employee"
+                    SET "Employee_status_ID" = 2
+                    WHERE "Employee_ID" = :id
+                ''')
+    try:
+        result = db.session.execute(query, {"id": employee_id})
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return {"message": "ERROR while firing employee", "error": str(e)}, 400
+    
+    if result.rowcount == 0:
+        return {"message": "Employee not found"}, 404
+
+    return {"message": "Employee fired"}, 200
 
 
 @employees_bp.route("/search", methods=["GET"])
@@ -64,4 +81,15 @@ def search_employees():
         "Login_credentials_id": Employee.Login_credentials_ID,
     }
     ans = EmployeeService.search(request.args, search_fields)
+    ans = [emp for emp in ans if emp.get("Status_name") == "Active"]
     return jsonify(ans)
+    # query = text('''SELECT "Employee".* FROM "Employee"
+    #                 JOIN "Employee_status"
+    #                 ON "Employee"."Employee_status_ID" = "Employee_status"."Employee_status_ID"
+    #                 JOIN "Pos
+    #                 WHERE "Employee_status"."Status_name" = 'Active'
+    #             ''')
+    # result = db.session.execute(query)
+    # rows = result.fetchall()
+    # data = [dict(row._mapping) for row in rows]
+    # return jsonify(data)
