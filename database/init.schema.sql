@@ -339,9 +339,11 @@ RETURNS TRIGGER AS $$
 BEGIN
   UPDATE "Employee" SET "Employee_status_ID" = (
     SELECT "Employee_status_ID" FROM "Employee_status"
-    WHERE "Status_name" = 'Unemployed'
+    WHERE "Status_name" = 'Inactive'
   )
   WHERE "Employee_ID" = OLD."Employee_ID";
+  UPDATE "Position_history" SET "Date_end" = CURRENT_DATE
+  WHERE "Employee_ID" = OLD."Employee_ID" AND "Date_end" IS NULL;
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

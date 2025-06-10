@@ -5,7 +5,6 @@ import json
 cars_nb = 600
 car_dealers_nb = 30
 clients_nb = 100
-transactions_nb = 200
 employees_nb = 100
 
 with open("./database/seed_data.json", "r") as fh:
@@ -25,7 +24,6 @@ cities = data["cities"]
 streets = data["streets"]
 
 address_ids = list(range(1, car_dealers_nb + 1))
-invoice_ids = list(range(1, transactions_nb + 1))
 cities_list = [city for countries in cities.values() for city in countries]
 
 
@@ -123,33 +121,78 @@ def generate_clients():
     return client_table
 
 
-def generate_transactions_and_invoices():
+def generate_date(start_year, end_year):
+    year = random.randint(start_year, end_year)
+    month = random.randint(1, 12)
+    if month == 2:
+        day = random.randint(1, 28)
+    elif month == 4 or month == 6 or month == 9 or month == 11:
+        day = random.randint(1, 30)
+    else:
+        day = random.randint(1, 31)
+    return (year, month, day)
+
+
+def generate_tables():
+    employee_table = ""
     transaction_table = ""
     invoice_table = ""
-    for transaction_id in range(1, transactions_nb + 1):
-        year = random.randint(2014, 2024)
-        month = random.randint(1, 12)
-        if month == 2:
-            day = random.randint(1, 28)
-        elif month == 4 or month == 6 or month == 9 or month == 11:
-            day = random.randint(1, 30)
+    position_history_table = ""
+    login_credentials_table = ""
+    curr_transaction_id = 1
+    for employee_id in range(1, employees_nb + 1):
+        gender = random.choice(["M", "F"])
+        full_name = random.choice(names[gender])
+        names[gender].remove(full_name)
+        name, surname = full_name.split()
+        salary = "NULL"
+        year, month, day = generate_date(1956, 2006)
+        phone = random.randint(100000000, 999999999)
+        status_id = random.randint(1, len(employee_status))
+        car_dealer_id = random.randint(1, car_dealers_nb)
+        year_start, month_start, day_start = generate_date(2013, 2023)
+        transaction_nb = random.randint(1, 5)
+        for id in range(transaction_nb):
+            transaction_id = id + curr_transaction_id
+            transaction, invoice = generate_transaction_and_invoice(
+                transaction_id, employee_id, year_start)
+            transaction_table += transaction
+            invoice_table += invoice
+        curr_transaction_id += transaction_nb
+        date_start = (year_start, month_start, day_start)
+        records = generate_pos_history_and_login_cred(employee_id, date_start)
+        position_history, login_credentials, login_credentials_id = records
+        position_history_table += position_history
+        if login_credentials:
+            login_credentials_table += login_credentials
         else:
-            day = random.randint(1, 31)
-        value = round(random.uniform(5000, 100000), 2)
-        client_id = random.randint(1, clients_nb)
-        employee_id = random.randint(1, employees_nb)
-        transaction_type_id = random.randint(1, len(transaction_types))
-        invoice_id = random.choice(invoice_ids)
-        invoice_ids.remove(invoice_id)
-        transaction_table += (
-            "INSERT INTO \"Transaction\" (\"Transaction_ID\", \"Date\", \""
-            "Value\", \"Client_ID\", \"Employee_ID\", \"Transaction_type_ID\","
-            f" \"Invoice_ID\") VALUES ({transaction_id}, '{year}-{month:02}-"
-            f"{day:02}', {value}, {client_id}, {employee_id}, "
-            f"{transaction_type_id}, {invoice_id});\n"
+            login_credentials_id = "NULL"
+        employee_table += (
+            "INSERT INTO \"Employee\" (\"Employee_ID\", \"Name\", \"Surname\","
+            " \"Gender\", \"Salary\", \"Date_of_birth\", \"Phone_number\", "
+            "\"Employee_status_ID\", \"Car_dealer_ID\", \"Login_credentials_ID"
+            f"\") VALUES ({employee_id}, '{name}', '{surname}', '{gender}', "
+            f"{salary}, '{year}-{month:02}-{day:02}', '{phone}', {status_id}, "
+            f"{car_dealer_id}, {login_credentials_id});\n"
         )
-        invoice_table += (generate_invoice(invoice_id, year, month, day))
-    return transaction_table, invoice_table
+    return (employee_table, transaction_table, invoice_table,
+            position_history_table, login_credentials_table)
+
+
+def generate_transaction_and_invoice(id, employee_id, year_start):
+    year, month, day = generate_date(year_start + 1, 2024)
+    value = round(random.uniform(5000, 100000), 2)
+    client_id = random.randint(1, clients_nb)
+    transaction_type_id = random.randint(1, len(transaction_types))
+    transaction = (
+        "INSERT INTO \"Transaction\" (\"Transaction_ID\", \"Date\", \""
+        "Value\", \"Client_ID\", \"Employee_ID\", \"Transaction_type_ID\","
+        f" \"Invoice_ID\") VALUES ({id}, '{year}-{month:02}-"
+        f"{day:02}', {value}, {client_id}, {employee_id}, "
+        f"{transaction_type_id}, {id});\n"
+    )
+    invoice = (generate_invoice(id, year, month, day))
+    return transaction, invoice
 
 
 def generate_invoice(id, year, month, day):
@@ -161,37 +204,6 @@ def generate_invoice(id, year, month, day):
     invoice += f"\"Issue_date\", \"NIP\") VALUES ({id}, '{status}', "
     invoice += f"'{year}-{month:02}-{day:02}', {nip});\n"
     return invoice
-
-
-def generate_employees():
-    employee_table = ""
-    for employee_id in range(1, employees_nb + 1):
-        gender = random.choice(["M", "F"])
-        full_name = random.choice(names[gender])
-        names[gender].remove(full_name)
-        name, surname = full_name.split()
-        salary = "NULL"
-        year = random.randint(1956, 2006)
-        month = random.randint(1, 12)
-        if month == 2:
-            day = random.randint(1, 28)
-        elif month == 4 or month == 6 or month == 9 or month == 11:
-            day = random.randint(1, 30)
-        else:
-            day = random.randint(1, 31)
-        phone = random.randint(100000000, 999999999)
-        status_id = random.randint(1, len(employee_status))
-        car_dealer_id = random.randint(1, car_dealers_nb)
-        login_credentials_id = "NULL"
-        employee_table += (
-            "INSERT INTO \"Employee\" (\"Employee_ID\", \"Name\", \"Surname\","
-            " \"Gender\", \"Salary\", \"Date_of_birth\", \"Phone_number\", "
-            "\"Employee_status_ID\", \"Car_dealer_ID\", \"Login_credentials_ID"
-            f"\") VALUES ({employee_id}, '{name}', '{surname}', '{gender}', "
-            f"{salary}, '{year}-{month:02}-{day:02}', '{phone}', {status_id}, "
-            f"{car_dealer_id}, {login_credentials_id});\n"
-        )
-    return employee_table
 
 
 def generate_employee_status():
@@ -227,36 +239,21 @@ def generate_transaction_type():
     return transaction_type_table
 
 
-def generate_pos_history_and_login_cred():
-    position_history_table = ""
-    login_credentials_table = ""
-    update_employee_table = ""
-    for id in range(1, employees_nb + 1):
-        year = random.randint(2014, 2024)
-        month = random.randint(1, 12)
-        if month == 2:
-            day = random.randint(1, 28)
-        elif month == 4 or month == 6 or month == 9 or month == 11:
-            day = random.randint(1, 30)
-        else:
-            day = random.randint(1, 31)
-        date_end = "NULL"
-        position_id = random.randint(1, len(position_names))
-        if position_names[position_id - 1] == "Manager":
-            login_credentials, update_employee = generate_login_credentials(id)
-            login_credentials_table += login_credentials
-            update_employee_table += update_employee
-        position_history_table += (
-            "INSERT INTO \"Position_history\" (\"Position_history_ID\", "
-            "\"Date_start\", \"Date_end\", \"Position_ID\", \"Employee_ID\") "
-            f"VALUES ({id}, '{year}-{month:02}-{day:02}', {date_end}, "
-            f"{position_id}, {id});\n"
-        )
-    return (
-        position_history_table,
-        login_credentials_table,
-        update_employee_table
+def generate_pos_history_and_login_cred(id, date_start):
+    year, month, day = date_start
+    date_end = "NULL"
+    position_id = random.randint(1, len(position_names))
+    log_cred = None
+    login_credentials_id = None
+    if position_names[position_id - 1] == "Manager":
+        log_cred, login_credentials_id = generate_login_credentials(id)
+    position_history = (
+        "INSERT INTO \"Position_history\" (\"Position_history_ID\", "
+        "\"Date_start\", \"Date_end\", \"Position_ID\", \"Employee_ID\") "
+        f"VALUES ({id}, '{year}-{month:02}-{day:02}', {date_end}, "
+        f"{position_id}, {id});\n"
     )
+    return position_history, log_cred, login_credentials_id
 
 
 def generate_login_credentials(id):
@@ -272,15 +269,7 @@ def generate_login_credentials(id):
         f" \"Login\", \"Password\") VALUES ({id}, '{login}', "
         f"'{password}');\n"
     )
-    update_employee = update_employees(id)
-    return login_credentials, update_employee
-
-
-def update_employees(id):
-    return (
-        f"UPDATE \"Employee\" SET \"Login_credentials_ID\" = {id} "
-        f"WHERE \"Employee_ID\" = {id};\n"
-    )
+    return login_credentials, id
 
 
 if __name__ == "__main__":
@@ -291,15 +280,13 @@ if __name__ == "__main__":
         fh.write(generate_car_dealers())
         fh.write(generate_employee_status())
         fh.write(generate_positions())
-        fh.write(generate_employees())
+        tables = generate_tables()
+        employees, transactions, invoices, pos_history, log_cred = tables
+        fh.write(log_cred)
+        fh.write(employees)
         fh.write(generate_clients())
         fh.write(generate_transaction_type())
-        transactions, invoices = generate_transactions_and_invoices()
         fh.write(invoices)
         fh.write(transactions)
         fh.write(generate_cars())
-        (pos_history, login_credentials,
-         update_employee) = generate_pos_history_and_login_cred()
         fh.write(pos_history)
-        fh.write(login_credentials)
-        fh.write(update_employee)

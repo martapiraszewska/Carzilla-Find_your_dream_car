@@ -280,7 +280,7 @@
         ]
     },
     "mail_domains": ["gmail", "yahoo", "protonmail", "outlook", "hotmail", "aol"],
-    "employee_status": ["Active", "On Leave"],
+    "employee_status": ["Active", "Inactive"],
     "position_names": ["Salesperson", "Manager", "Technician"],
     "transaction_types": ["Purchase", "Lease"],
     "invoice_status": ["Paid", "Unpaid", "Refunded", "Forgiven", "Overdue"],
