@@ -215,7 +215,8 @@ BEGIN
       INTO min_salary, max_salary
       FROM "Position"
       WHERE "Position"."Position_ID" = NEW."Position_ID";
-      UPDATE "Employee" SET "Salary" = ROUND(RANDOM()*(max_salary - min_salary) + min_salary);
+      UPDATE "Employee" SET "Salary" = ROUND(RANDOM()*(max_salary - min_salary) + min_salary)
+      WHERE "Employee_ID" = NEW."Employee_ID";
     END IF;
   END IF;
   UPDATE "Position_history" SET "Date_end" = NEW."Date_start" - INTERVAL '1 day'
@@ -332,6 +333,23 @@ CREATE TRIGGER trg_insert_position
 BEFORE INSERT OR UPDATE ON "Position"
 FOR EACH ROW
 EXECUTE FUNCTION insert_position();
+
+CREATE OR REPLACE FUNCTION delete_employee()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "Employee" SET "Employee_status_ID" = (
+    SELECT "Employee_status_ID" FROM "Employee_status"
+    WHERE "Status_name" = 'Unemployed'
+  )
+  WHERE "Employee_ID" = OLD."Employee_ID";
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tgr_delete_employee
+BEFORE DELETE ON "Employee"
+FOR EACH ROW
+EXECUTE FUNCTION delete_employee();
 
 -- FUNCTIONS
 
