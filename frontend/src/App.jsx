@@ -61,7 +61,7 @@ const App = () => {
             path="/hire"
             element={
               <PrivateRoute>
-                <HirePage />
+                <AddEmployee />
               </PrivateRoute>
             }
           />
