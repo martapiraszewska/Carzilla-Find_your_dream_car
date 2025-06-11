@@ -68,10 +68,12 @@ class CarService:
             return {"error": "No valid fields to update"}, 400
 
         valid = Valid()
-        if data["Mileage"]:
-            valid.valid_number_positive(data["Mileage"])
-        if data["Price"]:
-            valid.valid_number_positive(data["Price"])
+        mileage = data.get("Mileage")
+        if mileage:
+            valid.valid_number_positive(mileage)
+        price = data.get("price")
+        if price:
+            valid.valid_number_positive(price)
         valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
