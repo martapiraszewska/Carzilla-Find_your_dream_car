@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import PrivateRoute from './context/PrivateRoute';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -13,21 +14,58 @@ import EmployeePage from './pages/EmployeePage';
 import HirePage from './forms/HirePage';
 
 const App = () => {
+
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/cars" element={<CarsPage />} />
-          <Route path="/employees" element={<EmployeePage />} />
-          <Route path="/hire" element={<HirePage />} />
+          
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cars"
+            element={
+              <PrivateRoute>
+                <CarsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/employees"
+            element={
+              <PrivateRoute>
+                <EmployeePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/hire"
+            element={
+              <PrivateRoute>
+                <HirePage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
-};
+}
 
 export default App;
