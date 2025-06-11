@@ -11,7 +11,7 @@ const SearchBar = () => {
     if (brandInput) query.append('brand', brandInput);
     if (modelInput) query.append('model', modelInput);
 
-    fetch(`search?${query.toString()}`)
+    fetch(`cars/search?${query.toString()}`)
       .then(response => response.json())
       .then(data => {
         setCars(data);
@@ -45,7 +45,7 @@ const SearchBar = () => {
           <ul>
             {cars.map((car) => (
               <li key={car.id}>
-                {car.brand} {car.model} - ${car.price}
+                {car.Brand} {car.Model} - ${car.Price}
               </li>
             ))}
           </ul>

@@ -33,9 +33,18 @@ const ProfilePage = () => {
 
 
   const handleLogout = () => {
-    logout(); // Set the global login state to false
-    navigate('/'); // Redirect to the homepage
+    fetch('/auth/logout', {
+      method: 'POST',
+    })
+    .then(response => {
+      if (response.ok) {
+        logout();
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    })
   };
+
 
   return (
     <div className="profile-page">
