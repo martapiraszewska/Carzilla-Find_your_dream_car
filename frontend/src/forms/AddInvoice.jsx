@@ -9,6 +9,7 @@ const AddInvoice = () => {
     client: '',
     amount: '',
     date: '',
+    nip: '1234',
   });
 
   const handleChange = (e) => {
@@ -19,13 +20,14 @@ const AddInvoice = () => {
   const handleSubmit = (e) => {
     // for now only
     e.preventDefault();
-    fetch('/invoices', {
+    fetch('/invoices/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         alert(data.message || 'Invoice added successfully!');
         setFormData({
           car: '',
@@ -33,6 +35,7 @@ const AddInvoice = () => {
           client: '',
           amount: '',
           date: '',
+          nip: '1234',
         });
       })
       .catch((error) => console.error('Error adding invoice:', error));

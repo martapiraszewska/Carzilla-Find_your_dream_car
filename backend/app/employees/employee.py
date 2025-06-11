@@ -219,7 +219,6 @@ class EmployeeService:
             Car_dealer_ID=data["Car_dealer_ID"],
             Login_credentials_ID=data["Login_credentials_ID"],
         )
-        print(employee.Employee_ID)
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
         date_start = get_date_or_now(data.get("Date_start"))
