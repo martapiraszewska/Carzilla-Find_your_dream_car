@@ -26,6 +26,7 @@ def create_app():
     from .clients import clients_bp
     from .profile import profile_bp
     from .stats import stats_bp
+    from .invoices import invoices_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp, url_prefix="/")
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(clients_bp, url_prefix="/clients")
     app.register_blueprint(profile_bp, url_prefix="/profile")
     app.register_blueprint(stats_bp, url_prefix="/stats")
+    app.register_blueprint(invoices_bp, url_prefix="/invoices")
 
     return app
 

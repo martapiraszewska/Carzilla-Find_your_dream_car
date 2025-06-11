@@ -34,6 +34,7 @@ def main_page():
                 <option value="/cars">/cars</option>
                 <option value="/profile">/profile</option>
                 <option value="/stats/employee_of_month">/stats/employee_of_month</option>
+                <option value="/invoices">/invoices</option>
             </select>
         </label>
 

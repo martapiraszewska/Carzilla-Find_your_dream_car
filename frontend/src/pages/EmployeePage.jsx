@@ -5,11 +5,12 @@ import ToolBar from '../elements/ToolBar';
 
 const EmployeePage = () => {
   // Mocked employee data
-  const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState([
   // { id: 1, name: 'John Doe', position: 'Sales Manager' },
   // { id: 2, name: 'Jane Smith', position: 'Accountant' },
   // { id: 3, name: 'Alice Johnson', position: 'HR Specialist' },
   // { id: 4, name: 'Bob Brown', position: 'Mechanic' },
+  ]);
   const navigate = useNavigate();
 
   const handleFetchEmployees = () => {
