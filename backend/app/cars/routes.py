@@ -5,8 +5,8 @@ from .cars import CarService
 cars_bp = Blueprint("cars", __name__)
 
 
-@cars_bp.route("/", methods=["POST"])
-# @login_required
+@cars_bp.route("/add", methods=["POST"])
+@login_required
 def add_car():
     required_fields = [
         "Brand",
@@ -17,18 +17,19 @@ def add_car():
         "Car_condition_ID",
         "Car_dealer_ID",
     ]
+    # you can reference to ID fields also by giving name of desired field; it will autoconvert to ID
     ans = CarService.add(request.get_json(), required_fields)
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/<int:car_id>", methods=["DELETE"])
+@cars_bp.route("/remove/<int:car_id>", methods=["DELETE"])
 @login_required
 def delete_car(car_id):
     ans = CarService.remove(car_id)
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/<int:car_id>", methods=["PUT"])
+@cars_bp.route("/update/<int:car_id>", methods=["PUT"])
 @login_required
 def update_car(car_id):
     updatable_fields = [
@@ -44,9 +45,9 @@ def update_car(car_id):
     return jsonify(ans[0]), ans[1]
 
 
-@cars_bp.route("/", methods=["GET"])
+@cars_bp.route("/search", methods=["GET"])
 def search_car():
-    # Example: /cars?brand=Toyota&model=Corolla
+    # Example: /cars/search?brand=Toyota&model=Corolla
     search_fields = [
         "Car_ID",
         "Brand",

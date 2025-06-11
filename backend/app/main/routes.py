@@ -5,9 +5,6 @@ from ..cars.routes import search_car
 
 main_bp = Blueprint("main", __name__)
 
-# i can test all endpoints in employee route, cars and main.search_cars
-# and of course validation
-
 
 @main_bp.route("/", methods=["GET"])
 def main_page():
@@ -35,6 +32,9 @@ def main_page():
             <select id="endpoint">
                 <option value="/employees">/employees</option>
                 <option value="/cars">/cars</option>
+                <option value="/profile">/profile</option>
+                <option value="/stats/employee_of_month">/stats/employee_of_month</option>
+                <option value="/invoices">/invoices</option>
             </select>
         </label>
 
@@ -73,7 +73,16 @@ def main_page():
             const id = document.getElementById('resourceId').value.trim();
             const formDataRaw = document.getElementById('formData').value.trim();
 
-            let url = id ? `${endpoint}/${id}` : endpoint;
+            const pathMap = {
+                GET: '/search',
+                POST: '/add',
+                PUT: '/update',
+                DELETE: '/remove'
+            };
+
+            let url2 = endpoint + pathMap[method];
+
+            let url = id ? `${url2}/${id}` : url2;
             let options = { method: method };
 
             let data = null;

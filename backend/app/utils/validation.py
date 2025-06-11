@@ -25,6 +25,11 @@ class Valid:
         if not re.fullmatch(phone_pattern, number):
             self._add_error("Invalid phone number format. ")
 
+    def valid_email(self, email):
+        email_pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.fullmatch(email_pattern, email):
+            self._add_error("Invalid email format. ")
+
     def valid_date(self, date, format="%Y-%m-%d"):
         try:
             datetime.strptime(date, format).date()
@@ -37,7 +42,7 @@ class Valid:
         except ValueError:
             self._add_error("Salary must be an integer. ")
             return
-
+        
         if salary < lower_bound:
             self._add_error("Salary too low. ")
         if salary > upper_bound:
@@ -54,6 +59,11 @@ class Valid:
     def valid_foreign_keys(self, data: dict):
         for field in data:
             if not field.endswith("_ID"):
+                continue
+            
+            try:
+                data[field] = int(data[field])
+            except Exception:
                 continue
 
             if not isinstance(data[field], int):

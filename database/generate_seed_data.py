@@ -1,6 +1,7 @@
 import random
 import string
 import json
+from werkzeug.security import generate_password_hash
 
 cars_nb = 600
 car_dealers_nb = 30
@@ -141,16 +142,11 @@ def generate_tables():
     login_credentials_table = ""
     curr_transaction_id = 1
     for employee_id in range(1, employees_nb + 1):
-        gender = random.choice(["M", "F"])
-        full_name = random.choice(names[gender])
-        names[gender].remove(full_name)
-        name, surname = full_name.split()
-        salary = "NULL"
-        year, month, day = generate_date(1956, 2006)
-        phone = random.randint(100000000, 999999999)
-        status_id = random.randint(1, len(employee_status))
-        car_dealer_id = random.randint(1, car_dealers_nb)
+        employee_table += generate_employee(employee_id)
         year_start, month_start, day_start = generate_date(2013, 2023)
+        date_start = (year_start, month_start, day_start)
+        position_history_table += generate_pos_history(employee_id, date_start)
+        login_credentials_table += generate_login_credentials(employee_id)
         transaction_nb = random.randint(1, 5)
         for id in range(transaction_nb):
             transaction_id = id + curr_transaction_id
@@ -159,24 +155,29 @@ def generate_tables():
             transaction_table += transaction
             invoice_table += invoice
         curr_transaction_id += transaction_nb
-        date_start = (year_start, month_start, day_start)
-        records = generate_pos_history_and_login_cred(employee_id, date_start)
-        position_history, login_credentials, login_credentials_id = records
-        position_history_table += position_history
-        if login_credentials:
-            login_credentials_table += login_credentials
-        else:
-            login_credentials_id = "NULL"
-        employee_table += (
-            "INSERT INTO \"Employee\" (\"Employee_ID\", \"Name\", \"Surname\","
-            " \"Gender\", \"Salary\", \"Date_of_birth\", \"Phone_number\", "
-            "\"Employee_status_ID\", \"Car_dealer_ID\", \"Login_credentials_ID"
-            f"\") VALUES ({employee_id}, '{name}', '{surname}', '{gender}', "
-            f"{salary}, '{year}-{month:02}-{day:02}', '{phone}', {status_id}, "
-            f"{car_dealer_id}, {login_credentials_id});\n"
-        )
     return (employee_table, transaction_table, invoice_table,
             position_history_table, login_credentials_table)
+
+
+def generate_employee(id):
+    gender = random.choice(["M", "F"])
+    full_name = random.choice(names[gender])
+    names[gender].remove(full_name)
+    name, surname = full_name.split()
+    salary = "NULL"
+    year, month, day = generate_date(1956, 2006)
+    phone = random.randint(100000000, 999999999)
+    status_id = random.randint(1, len(employee_status))
+    car_dealer_id = random.randint(1, car_dealers_nb)
+    employee = (
+        "INSERT INTO \"Employee\" (\"Employee_ID\", \"Name\", \"Surname\", "
+        "\"Gender\", \"Salary\", \"Date_of_birth\", \"Phone_number\", "
+        "\"Employee_status_ID\", \"Car_dealer_ID\", \"Login_credentials_ID"
+        f"\") VALUES ({id}, '{name}', '{surname}', '{gender}', {salary}, "
+        f"'{year}-{month:02}-{day:02}', '{phone}', {status_id}, "
+        f"{car_dealer_id}, {id});\n"
+    )
+    return employee
 
 
 def generate_transaction_and_invoice(id, employee_id, year_start):
@@ -239,37 +240,31 @@ def generate_transaction_type():
     return transaction_type_table
 
 
-def generate_pos_history_and_login_cred(id, date_start):
+def generate_pos_history(id, date_start):
     year, month, day = date_start
     date_end = "NULL"
     position_id = random.randint(1, len(position_names))
-    log_cred = None
-    login_credentials_id = None
-    if position_names[position_id - 1] == "Manager":
-        log_cred, login_credentials_id = generate_login_credentials(id)
     position_history = (
         "INSERT INTO \"Position_history\" (\"Position_history_ID\", "
         "\"Date_start\", \"Date_end\", \"Position_ID\", \"Employee_ID\") "
         f"VALUES ({id}, '{year}-{month:02}-{day:02}', {date_end}, "
         f"{position_id}, {id});\n"
     )
-    return position_history, log_cred, login_credentials_id
+    return position_history
 
 
 def generate_login_credentials(id):
     login_length = random.randint(5, 10)
     login = random.choices(string.ascii_letters, k=login_length)
     login = ''.join(login)
-    password_length = random.randint(8, 16)
-    password = random.choices(string.ascii_letters + string.digits,
-                              k=password_length)
-    password = ''.join(password)
+    password = generate_password_hash("password", method='scrypt',
+                                      salt_length=16)
     login_credentials = (
         "INSERT INTO \"Login_credentials\" (\"Login_credentials_ID\","
         f" \"Login\", \"Password\") VALUES ({id}, '{login}', "
         f"'{password}');\n"
     )
-    return login_credentials, id
+    return login_credentials
 
 
 if __name__ == "__main__":

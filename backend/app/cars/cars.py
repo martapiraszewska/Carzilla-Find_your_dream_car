@@ -7,22 +7,25 @@ class CarService:
     def add(data, required_fields):
         valid = Valid()
         valid.valid_presence(data, required_fields)
-        valid.valid_number_positive(data["Mileage"])
-        valid.valid_number_positive(data["Price"])
-        if not data["Car_dealer_ID"].isdigit():
-            try:
-                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-            except Exception as e:
-                return {"error": str(e)}, 400
+        if valid.check_validity():
+            valid.valid_number_positive(data["Mileage"])
+            valid.valid_number_positive(data["Price"])
+            if not data["Car_dealer_ID"].isdigit():
+                try:
+                    data["Car_dealer_ID"] = get_car_dealer_id_by_name(
+                        data["Car_dealer_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
 
-        if not data["Car_condition_ID"].isdigit():
-            try:
-                data["Car_condition_ID"] = get_car_condition_id_by_name(
-                    data["Car_condition_ID"]
-                )
-            except Exception as e:
-                return {"error": str(e)}, 400
-        valid.valid_foreign_keys(data)
+            if not data["Car_condition_ID"].isdigit():
+                try:
+                    data["Car_condition_ID"] = get_car_condition_id_by_name(
+                        data["Car_condition_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 400
+            valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
             return {"error": valid.get_error_msg()}, 400
@@ -65,10 +68,12 @@ class CarService:
             return {"error": "No valid fields to update"}, 400
 
         valid = Valid()
-        if data["Mileage"]:
-            valid.valid_number_positive(data["Mileage"])
-        if data["Price"]:
-            valid.valid_number_positive(data["Price"])
+        mileage = data.get("Mileage")
+        if mileage:
+            valid.valid_number_positive(mileage)
+        price = data.get("price")
+        if price:
+            valid.valid_number_positive(price)
         valid.valid_foreign_keys(data)
 
         if not valid.check_validity():
@@ -90,7 +95,6 @@ class CarService:
         query = Car.query
 
         for arg in criteria:
-            # print(arg, criteria[arg])
             if arg not in search_fields:  # security check
                 continue
             value = criteria[arg]

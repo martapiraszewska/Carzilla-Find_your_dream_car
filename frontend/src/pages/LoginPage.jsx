@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
@@ -9,15 +9,25 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
-
+  
   const handleLogin = () => {
-    // Simulate login logic (replace with actual API call)
-    if (username === 'admin' && password === 'password') {
-      login();
-      navigate('/dashboard'); // Redirect to the dashboard
-    } else {
-      alert('Invalid credentials');
-    }
+    fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    })
+    .then(response => {
+      if (response.ok) {
+        login();
+        navigate('/dashboard');
+      } else {
+        alert('Invalid credentials');
+      }
+    })
+    .catch(error => {
+      console.error('Login error:', error);
+      alert('Something went wrong. Please try again.');
+    });
   };
 
   return (

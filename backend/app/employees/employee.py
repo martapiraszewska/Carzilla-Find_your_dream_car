@@ -4,52 +4,57 @@ from ..models import db, Employee, Position, PositionHistory, EmployeeStatus, Ca
 
 
 class EmployeeService:
-    def create(data, required_fields):
+    def create(data, required_fields, add_login_creds=True):
+        if add_login_creds:
+            add_default_login_creds(data)
         valid = Valid()
         valid.valid_presence(data, required_fields)
-        valid.valid_date(data["Date_of_birth"])
-        if not data["Car_dealer_ID"].isdigit():
-            try:
-                data["Car_dealer_ID"] = get_car_dealer_id_by_name(data["Car_dealer_ID"])
-            except Exception as e:
-                return {"error": str(e)}, 400
-
-        if not data["Employee_status_ID"].isdigit():
-            try:
-                data["Employee_status_ID"] = get_employee_status_id_by_name(
-                    data["Employee_status_ID"]
-                )
-            except Exception as e:
-                return {"error": str(e)}, 400
-
-        if data.get("Position_ID"):
-            if not data["Position_ID"].isdigit():
+        if valid.check_validity():
+            valid.valid_date(data["Date_of_birth"])
+            if not data["Car_dealer_ID"].isdigit():
                 try:
-                    data["Position_ID"] = get_employee_position_id_by_name(
-                        data["Position_ID"]
+                    data["Car_dealer_ID"] = get_car_dealer_id_by_name(
+                        data["Car_dealer_ID"]
                     )
                 except Exception as e:
-                    return {"error": str(e)}, 400
+                    return {"error": str(e)}, 412
 
-        valid.valid_foreign_keys(data)
+            if not data["Employee_status_ID"].isdigit():
+                try:
+                    data["Employee_status_ID"] = get_employee_status_id_by_name(
+                        data["Employee_status_ID"]
+                    )
+                except Exception as e:
+                    return {"error": str(e)}, 413
 
-        phone = data.get("Phone_number")
-        if phone:
-            valid.valid_phone_number(phone)
+            if data.get("Position_ID"):
+                if not data["Position_ID"].isdigit():
+                    try:
+                        data["Position_ID"] = get_employee_position_id_by_name(
+                            data["Position_ID"]
+                        )
+                    except Exception as e:
+                        return {"error": str(e)}, 414
 
-        salary = data.get("Salary")
-        if salary:
-            try:
-                position = Position.query.get(data["Position_ID"])
-            except Exception:
-                return {"error": "required 'Position_ID' parameter"}, 400
-            if not position:
-                return {"error": "Invalid Position_ID"}, 400
+            valid.valid_foreign_keys(data)
 
-            valid.valid_salary(salary, position.Min_salary, position.Max_salary)
+            phone = data.get("Phone_number")
+            if phone:
+                valid.valid_phone_number(phone)
+
+            salary = data.get("Salary")
+            if salary:
+                try:
+                    position = Position.query.get(data["Position_ID"])
+                except Exception:
+                    return {"error": "required 'Position_ID' parameter"}, 400
+                if not position:
+                    return {"error": "Invalid Position_ID"}, 400
+
+                valid.valid_salary(salary, position.Min_salary, position.Max_salary)
 
         if not valid.check_validity():
-            return {"error": valid.get_error_msg()}, 400
+            return {"error": valid.get_error_msg()}, 415
 
         # Tworzenie pracownika
         try:
@@ -201,6 +206,8 @@ class EmployeeService:
             return {"error": str(e)}, 500
 
     def _add_employee_to_db(data, db_session):
+        print(data)
+        data.pop("Employee_ID", None)
         employee = Employee(
             Name=data["Name"],
             Surname=data["Surname"],
@@ -210,11 +217,10 @@ class EmployeeService:
             Phone_number=data.get("Phone_number"),
             Employee_status_ID=data["Employee_status_ID"],
             Car_dealer_ID=data["Car_dealer_ID"],
-            # Login_credentials_ID=data["Login_credentials_ID"],
+            Login_credentials_ID=data["Login_credentials_ID"],
         )
         db_session.add(employee)
         db_session.flush()  # potrzebne do uzyskania ID
-
         date_start = get_date_or_now(data.get("Date_start"))
 
         emp_id = employee.Employee_ID
@@ -276,3 +282,8 @@ def get_employee_position_id_by_name(name):
         )
 
     return position_entry.Position_ID
+
+
+def add_default_login_creds(data):
+    if not data.get("Login_credentials_ID"):
+        data["Login_credentials_ID"] = 2

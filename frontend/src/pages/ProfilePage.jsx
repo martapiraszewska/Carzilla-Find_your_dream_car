@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ProfilePage.css';
@@ -7,10 +7,44 @@ const ProfilePage = () => {
   const { logout } = useAuth(); // Access the logout function
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout(); // Set the global login state to false
-    navigate('/'); // Redirect to the homepage
+  const [stats, setStats] = useState([]);
+  const handleGetData = () => {
+    const options = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept', 'credentials': 'include'},
+    };
+    fetch('/profile/search', options).then((response) => {
+      if (response.status === 200) {
+          response.json().then(data => {
+            setStats(data);
+            console.log(data);
+            return data;
+          })
+      }
+      else{
+          console.log("unable to fetch profile data", response);
+      }
+    });
   };
+
+  useEffect(() => {
+      handleGetData();
+    }, []);
+
+
+  const handleLogout = () => {
+    fetch('/auth/logout', {
+      method: 'POST',
+    })
+    .then(response => {
+      if (response.ok) {
+        logout();
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    })
+  };
+
 
   return (
     <div className="profile-page">
@@ -18,8 +52,9 @@ const ProfilePage = () => {
       <div className="profile-stats">
         <h2>Account Stats</h2>
         <ul>
-          <li>Cars Sold: 25</li>
-          <li>Total Profit: $50,000</li>
+          <li>Number of Car Dealers: {stats.carDealersAmount}</li>
+          <li>Cars Sold: {stats.carsSold}</li>
+          <li>Total Profit: ${stats.profit}</li>
           <li>Active Since: January 2023</li>
         </ul>
       </div>

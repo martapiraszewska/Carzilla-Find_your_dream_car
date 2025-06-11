@@ -1,0 +1,93 @@
+.invoices-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8f9fa;
+  min-height: 100vh;
+  padding: 60px 0;
+}
+
+.invoices-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+}
+
+.invoices-actions {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 28px;
+  align-items: center;
+}
+
+.invoices-search-input {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 1.5px solid #007bff;
+  border-radius: 6px;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 200px;
+}
+
+.invoices-search-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 2px #cce1ff;
+}
+
+.invoices-add-button {
+  padding: 10px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.invoices-add-button:hover {
+  background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.invoices-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  max-width: 700px;
+}
+
+.invoice-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  margin-bottom: 14px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.invoice-employee {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.invoice-amount {
+  font-size: 17px;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.invoice-date {
+  font-size: 15px;
+  color: #888;
+}

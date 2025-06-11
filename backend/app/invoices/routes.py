@@ -1,120 +1,71 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
-from models import db, Invoice
-from datetime import datetime, timezone
+from sqlalchemy import text
+from ..models import db, Invoice, Transaction
+from datetime import datetime
 
 invoices_bp = Blueprint("invoices", __name__)
 
+@invoices_bp.route("/search", methods=["GET"])
+def get_best_employee():
+    query = text('''SELECT "Transaction"."Invoice_ID", "Transaction"."Value", CAST("Transaction"."Date" AS DATE) AS "Date", "Employee"."Name", "Employee"."Surname" FROM "Transaction"
+                 JOIN "Employee"
+                 ON "Employee"."Employee_ID" = "Transaction"."Employee_ID"
+                 JOIN "Invoice"
+                 ON "Invoice"."Invoice_ID" = "Transaction"."Invoice_ID"
+                ''')
+    result = db.session.execute(query)
+    retv = [dict(row._mapping) for row in result]
+    for emp in retv:
+        emp["Name"] += ' ' + emp.pop("Surname")
+        emp["Date"] = emp["Date"].strftime('%Y-%m-%d')
 
-@invoices_bp.route("/invoices", methods=["POST"])
-@login_required
-def create_invoice():
+
+    if retv is None:
+        return jsonify({"message": "No data for current time period"}), 204
+
+    return jsonify(retv)
+
+@invoices_bp.route("/add", methods=["POST"])
+def add_invoice():
+    
     data = request.get_json()
+    emp_id = data.get("employee")
+    client_id = data.get("client")
+    value = data.get("amount")
+    nip = data.get("nip")
 
-    required_fields = ["Status", "NIP"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"error": f"Missing required field: {field}"}), 400
+    new_invoice = Invoice(
+        Status='Issued',
+        Issue_date=datetime.now(),
+        NIP=nip)
+    
+    db.session.add(new_invoice)
+    db.session.commit()
+    invoice_id = new_invoice.Invoice_ID
 
-    issue_date = None
-    if "Issue_date" in data:
-        try:
-            issue_date = datetime.strptime(data["Issue_date"], "%Y-%m-%d").date()
-        except ValueError:
-            return jsonify({"error": "Issue_date must be in YYYY-MM-DD format"}), 400
-    else:
-        issue_date = datetime.now(timezone.utc).date()
-
-    try:
-        invoice = Invoice(Status=data["Status"], NIP=data["NIP"], Issue_date=issue_date)
-        db.session.add(invoice)
-        db.session.commit()
-
-        return jsonify({"message": "Invoice created", "id": invoice.Invoice_ID}), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to add invoice", "details": str(e)}), 500
-
-
-@invoices_bp.route("/invoices", methods=["GET"])
-@login_required
-def search_invoices():
-    search_fields = {
-        "status": Invoice.Status,
-        "issue_date": Invoice.Issue_date,
-        "nip": Invoice.NIP,
-    }
-
-    query = Invoice.query
-
-    for arg in request.args:
-        if arg not in search_fields:
-            continue
-        value = request.args[arg]
-
-        if isinstance(search_fields[arg].type, db.String):
-            query = query.filter(search_fields[arg].ilike(f"%{value}%"))
-        else:
-            query = query.filter(search_fields[arg] == value)
-
-    invoices = query.all()
-
-    return jsonify(
-        [
-            {
-                "id": inv.Invoice_ID,
-                "status": inv.Status,
-                "issue_date": (
-                    inv.Issue_date.strftime("%Y-%m-%d") if inv.Issue_date else None
-                ),
-                "nip": inv.NIP,
-            }
-            for inv in invoices
-        ]
+    new_transaction = Transaction(
+        Date=datetime.now(),
+        Value=value,
+        Client_ID=client_id,
+        Employee_ID=emp_id,
+        Transaction_type_ID=1,
+        Invoice_ID=invoice_id
     )
 
+    db.session.add(new_transaction)
+    db.session.commit()
+    transaction_id = new_transaction.Transaction_ID
 
-@invoices_bp.route("/invoices/<int:invoice_id>", methods=["PUT"])
-@login_required
-def update_invoice(invoice_id):
-    data = request.get_json()
-    updatable_fields = ["Status", "Issue_date", "NIP"]
-    update_data = {k: data[k] for k in updatable_fields if k in data}
+    return jsonify({"message": "Added Transaction + Invoice Succesfuly"}), 200
 
-    if "Issue_date" in update_data:
-        try:
-            update_data["Issue_date"] = datetime.strptime(
-                update_data["Issue_date"], "%Y-%m-%d"
-            ).date()
-        except ValueError:
-            return jsonify({"error": "Issue_date must be in YYYY-MM-DD format"}), 400
+    # query = text('''INSERT INTO "Invoice" ("Status", "Issue_date", "NIP")
+    #                 VALUES ('Issued', ':date', :nip);
+    #              ''')
+    
+    # result = db.session.execute(query, {"date": datetime.now(), "nip": nip})
+    # db.session.commit()    
 
-    if "NIP" in update_data and not isinstance(update_data["NIP"], int):
-        return jsonify({"error": "NIP must be an integer"}), 400
-
-    try:
-        result = Invoice.query.filter_by(Invoice_ID=invoice_id).update(update_data)
-        if result == 0:
-            return jsonify({"error": "Invoice not found"}), 404
-        db.session.commit()
-        return jsonify({"message": "Invoice updated"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
-
-@invoices_bp.route("/invoices/<int:invoice_id>", methods=["DELETE"])
-@login_required
-def delete_invoice(invoice_id):
-    invoice = Invoice.query.get(invoice_id)
-    if not invoice:
-        return jsonify({"error": "Invoice not found"}), 404
-
-    try:
-        db.session.delete(invoice)
-        db.session.commit()
-        return jsonify({"message": "Invoice deleted"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+    # query = text('''INSERT INTO "Transaction" ("Date", "Value", "Client_ID", "Employee_ID", "Transaction_type_ID", "Invoice_ID")
+    #                 VALUES (:date, :value, :client_id, :emp_id, 1, :invoice_id);
+    #              ''')
