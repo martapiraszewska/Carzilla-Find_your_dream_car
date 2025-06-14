@@ -65,6 +65,54 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/invoices"
+            element={
+              <PrivateRoute>
+                <InvoicesPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/clients"
+            element={
+              <PrivateRoute>
+                <ClientsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <PrivateRoute>
+                <StatsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-car"
+            element={
+              <PrivateRoute>
+                <AddCar />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/sell"
+            element={
+              <PrivateRoute>
+                <AddInvoice />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-client"
+            element={
+              <PrivateRoute>
+                <AddClient />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </Router>
