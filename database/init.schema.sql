@@ -180,10 +180,6 @@ EXECUTE FUNCTION update_employee_stats();
 CREATE OR REPLACE FUNCTION insert_invoice()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF LENGTH(NEW."NIP"::text) != 10 THEN
-    RAISE EXCEPTION 'NIP must be exactly 10 digits. Got: %', NEW."NIP";
-  END IF;
-
   IF NEW."Issue_date" IS NULL THEN
     NEW."Issue_date" := CURRENT_DATE;
   END IF;
