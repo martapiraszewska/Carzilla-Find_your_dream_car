@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AddForm.css';
 import ToolBar from '../elements/ToolBar';
 
@@ -12,9 +12,37 @@ const AddEmployee = () => {
     Phone_number: '',
     Employee_status_ID: '',
     Car_dealer_ID: '',
-    Login_credentials_ID: '',
     Position_ID: ''
   });
+  const [dealers, setDealers] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+
+  // Fetch car dealers for dropdown
+  useEffect(() => {
+    fetch('/car_dealers/')
+      .then((res) => res.json())
+      .then((data) => setDealers(data))
+      .catch(() => setDealers([]));
+  }, []);
+
+  // Fetch employee statuses for dropdown
+  useEffect(() => {
+    fetch('/employee_status/')
+      .then((res) => res.json())
+      .then((data) => setStatuses(data))
+      .catch(() => setStatuses([]));
+  }, []);
+
+  // Fetch positions for dropdown
+  useEffect(() => {
+    fetch('/positions/')
+      .then((res) => res.json())
+      .then((data) => setPositions(data))
+      .catch(() => setPositions([]));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,32 +51,43 @@ const AddEmployee = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setMessage('');
+    setMessageType('');
     fetch('/employees/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        alert(data.message || 'Employee added successfully!');
-        // setFormData({
-        //   Name: '',
-        //   Surname: '',
-        //   Gender: '',
-        //   Salary: '',
-        //   Date_of_birth: '',
-        //   Phone_number: '',
-        //   Employee_status_id: '',
-        //   Car_dealer_id: '',
-        //   Login_credentials_id: '',
-        // });
+      .then(async (response) => {
+        const data = await response.json();
+        if (response.ok) {
+          setMessage(data.message || 'Employee added successfully!');
+          setMessageType('success');
+          setFormData({
+            Name: '',
+            Surname: '',
+            Gender: '',
+            Salary: '',
+            Date_of_birth: '',
+            Phone_number: '',
+            Employee_status_ID: '',
+            Car_dealer_ID: '',
+            Position_ID: ''
+          });
+        } else {
+          setMessage(data.error || 'Failed to add employee.');
+          setMessageType('error');
+        }
       })
-      .catch((error) => console.error('Error adding employee:', error));
+      .catch(() => {
+        setMessage('Error adding employee.');
+        setMessageType('error');
+      });
   };
 
   return (
     <div className="hire-page">
-        <ToolBar />
+      <ToolBar />
       <h1 className="hire-title">Hire a New Employee</h1>
       <form className="hire-form" onSubmit={handleSubmit}>
         <input
@@ -67,14 +106,17 @@ const AddEmployee = () => {
           onChange={handleChange}
           required
         />
-        <input
-          type="text"
+        <select
           name="Gender"
-          placeholder="Gender"
           value={formData.Gender}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="">Gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+          <option value="O">Other</option>
+        </select>
         <input
           type="number"
           name="Salary"
@@ -97,42 +139,61 @@ const AddEmployee = () => {
           value={formData.Phone_number}
           onChange={handleChange}
         />
-        <input
-          type="number"
+        <select
           name="Employee_status_ID"
-          placeholder="Employee Status ID"
           value={formData.Employee_status_ID}
           onChange={handleChange}
           required
-        />
-        <input
-          type="number"
+        >
+          <option value="">Employee Status</option>
+          {statuses.map((status) => (
+            <option key={status.Employee_status_ID} value={status.Employee_status_ID}>
+              {status.Status_name}
+            </option>
+          ))}
+        </select>
+        <select
           name="Car_dealer_ID"
-          placeholder="Car Dealer ID"
           value={formData.Car_dealer_ID}
           onChange={handleChange}
           required
-        />
-        <input
-          type="number"
-          name="Login_credentials_ID"
-          placeholder="Login Credentials ID"
-          value={formData.Login_credentials_ID}
+        >
+          <option value="">Car Dealer</option>
+          {dealers.map((dealer) => (
+            <option key={dealer.Car_dealer_ID} value={dealer.Car_dealer_ID}>
+              {dealer.Name}
+            </option>
+          ))}
+        </select>
+        {/* <select
+          name="Position_ID"
+          value={formData.Position_ID}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="">Position</option>
+          {positions.map((pos) => (
+            <option key={pos.Position_ID} value={pos.Position_ID}>
+              {pos.Position_name}
+            </option>
+          ))}
+        </select> */}
         <input
-          type="number"
+          type="text"
           name="Position_ID"
           placeholder="Position ID"
           value={formData.Position_ID}
           onChange={handleChange}
-          required
         />
         <button type="submit" className="hire-button">
           Hire Employee
         </button>
       </form>
+      {message && (
+        <div className={`addcar-message ${messageType}`}>
+          {message}
+        </div>
+      )}
     </div>
   );
 };

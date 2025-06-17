@@ -5,18 +5,31 @@ const SearchBar = () => {
   const [brandInput, setBrandInput] = useState('');
   const [modelInput, setModelInput] = useState('');
   const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSearch = () => {
+    setLoading(true);
+    setMessage('');
     const query = new URLSearchParams();
-    if (brandInput) query.append('brand', brandInput);
-    if (modelInput) query.append('model', modelInput);
+    if (brandInput) query.append('Brand', brandInput);
+    if (modelInput) query.append('Model', modelInput);
 
-    fetch(`cars/search?${query.toString()}`)
-      .then(response => response.json())
+    fetch(`/cars/search?${query.toString()}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch cars');
+        return response.json();
+      })
       .then(data => {
         setCars(data);
+        setLoading(false);
+        if (!data.length) setMessage('No cars found');
       })
-      .catch(error => console.error('Error fetching cars:', error));
+      .catch(error => {
+        setMessage('Error fetching cars');
+        setCars([]);
+        setLoading(false);
+      });
   };
 
   return (
@@ -41,16 +54,16 @@ const SearchBar = () => {
         </button>
       </div>
       <div className="car-list">
-        {cars.length > 0 ? (
+        {loading && <p>Loading...</p>}
+        {message && <p>{message}</p>}
+        {!loading && !message && cars.length > 0 && (
           <ul>
             {cars.map((car) => (
-              <li key={car.id}>
+              <li key={car.Car_ID}>
                 {car.Brand} {car.Model} - ${car.Price}
               </li>
             ))}
           </ul>
-        ) : (
-          <p>No cars found</p>
         )}
       </div>
     </div>

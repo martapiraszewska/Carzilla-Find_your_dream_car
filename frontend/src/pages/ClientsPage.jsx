@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ToolBar from '../elements/ToolBar';
 import './ClientsPage.css';
 import { useNavigate } from 'react-router-dom';
-const ClientsPage = () => {
-  const [clients, setClients] = useState([
-    { id: 1, name: 'Jane Smith', email: 'jane.smith@email.com', phone: '123-456-789' },
-    { id: 2, name: 'John Doe', email: 'john.doe@email.com', phone: '987-654-321' },
-    { id: 3, name: 'Alice Johnson', email: 'alice.j@email.com', phone: '555-123-456' },
-    { id: 4, name: 'Bob Brown', email: 'bob.brown@email.com', phone: '444-555-666' },
-  ]);
 
+const ClientsPage = () => {
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLoading(true);
+    setMessage('');
+    fetch('/clients/search')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch clients');
+        return res.json();
+      })
+      .then((data) => {
+        setClients(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setMessage('Error loading clients.');
+        setClients([]);
+        setLoading(false);
+      });
+  }, []);
+
   const handleAddClient = () => {
     navigate('/add-client');
   };
@@ -22,15 +39,18 @@ const ClientsPage = () => {
       <button className="clients-add-button" onClick={handleAddClient}>
         Add Client
       </button>
+      {loading && <div>Loading clients...</div>}
+      {message && <div className="clients-message">{message}</div>}
       <ul className="clients-list">
         {clients.map(client => (
-          <li key={client.id} className="client-item">
-            <span className="client-name">{client.name}</span>
-            <span className="client-email">{client.email}</span>
-            <span className="client-phone">{client.phone}</span>
+          <li key={client.Client_ID} className="client-item">
+            <span className="client-name">{client.Name} {client.Surname}</span>
+            <span className="client-email">{client.Mail}</span>
+            <span className="client-phone">{client.Phone}</span>
           </li>
         ))}
       </ul>
+      {!loading && clients.length === 0 && <div>No clients found.</div>}
     </div>
   );
 };

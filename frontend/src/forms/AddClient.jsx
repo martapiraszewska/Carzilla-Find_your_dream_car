@@ -4,14 +4,15 @@ import ToolBar from '../elements/ToolBar';
 
 const AddClient = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    surname: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    date_of_birth: '',
+    Name: '',
+    Surname: '',
+    Gender: '',
+    Mail: '',
+    Phone: '',
+    City: '',
   });
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,25 +21,46 @@ const AddClient = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/clients', {
+    setMessage('');
+    setMessageType('');
+
+    // Prepare payload
+    const payload = {
+      Name: formData.Name,
+      Surname: formData.Surname,
+      Gender: formData.Gender,
+      Mail: formData.Mail,
+      Phone: formData.Phone,
+      City: formData.City,
+    };
+
+    fetch('/clients/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        alert(data.message || 'Client added successfully!');
-        setFormData({
-          name: '',
-          surname: '',
-          email: '',
-          phone: '',
-          address: '',
-          city: '',
-          date_of_birth: '',
-        });
+      .then(async (response) => {
+        const data = await response.json();
+        if (response.ok) {
+          setMessage(data.message || 'Client added successfully!');
+          setMessageType('success');
+          setFormData({
+            Name: '',
+            Surname: '',
+            Gender: '',
+            Mail: '',
+            Phone: '',
+            City: '',
+          });
+        } else {
+          setMessage(data.error || 'Failed to add client.');
+          setMessageType('error');
+        }
       })
-      .catch((error) => console.error('Error adding client:', error));
+      .catch(() => {
+        setMessage('Error adding client.');
+        setMessageType('error');
+      });
   };
 
   return (
@@ -48,60 +70,64 @@ const AddClient = () => {
       <form className="hire-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          name="name"
+          name="Name"
           placeholder="Name"
-          value={formData.name}
+          value={formData.Name}
           onChange={handleChange}
           required
         />
         <input
           type="text"
-          name="surname"
+          name="Surname"
           placeholder="Surname"
-          value={formData.surname}
+          value={formData.Surname}
           onChange={handleChange}
           required
         />
+        <select
+          name="Gender"
+          value={formData.Gender}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+          <option value="O">Other</option>
+        </select>
         <input
           type="email"
-          name="email"
+          name="Mail"
           placeholder="Email"
-          value={formData.email}
+          value={formData.Mail}
           onChange={handleChange}
           required
         />
         <input
           type="text"
-          name="phone"
+          name="Phone"
           placeholder="Phone"
-          value={formData.phone}
+          value={formData.Phone}
           onChange={handleChange}
+          required
         />
         <input
           type="text"
-          name="address"
-          placeholder="Address"
-          value={formData.address}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="city"
+          name="City"
           placeholder="City"
-          value={formData.city}
+          value={formData.City}
           onChange={handleChange}
-        />
-        <input
-          type="date"
-          name="date_of_birth"
-          placeholder="Date of Birth"
-          value={formData.date_of_birth}
-          onChange={handleChange}
+          required
         />
         <button type="submit" className="hire-button">
           Add Client
         </button>
       </form>
+      {message && (
+        <div className={`addcar-message ${messageType}`}>
+          {message}
+        </div>
+      )}
     </div>
   );
 };

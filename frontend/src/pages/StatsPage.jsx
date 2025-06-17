@@ -4,43 +4,79 @@ import './StatsPage.css';
 import crownIcon from '../assets/crown.png';
 
 const StatsPage = () => {
-  // Mocked stats data
-  // const employeeOfMonth = {
-  //   name: 'Alice Johnson',
-  //   position: 'HR Specialist',
-  // };
+  // Employee of the Month state
+  const [employeeOfMonth, setEmployeeOfMonth] = useState(null);
+  const [eomLoading, setEomLoading] = useState(true);
+  const [eomMessage, setEomMessage] = useState('');
 
-  const [employeeOfMonth, setBestEmployee] = useState([]);
+  // Bonus stats state
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsMessage, setStatsMessage] = useState('');
 
-  const handleEmployeeOfMonth = () => {
-    const options = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept', 'credentials': 'include'},
-    };
-    fetch('/stats/employee_of_month/search', options).then((response) => {
-      if (response.status === 200) {
-          response.json().then(data => {
-            setBestEmployee(data);
-            console.log(data);
-            return data;
-          })
-      }
-      else{
-          console.log("unable to fetch profile data", response);
-      }
-    });
-  };
-
+  // Fetch Employee of the Month
   useEffect(() => {
-    handleEmployeeOfMonth();
+    setEomLoading(true);
+    setEomMessage('');
+    fetch('/stats/employee_of_month/search')
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else if (response.status === 204) {
+          setEomMessage('No data for current time period.');
+          setEmployeeOfMonth(null);
+          setEomLoading(false);
+          return null;
+        } else {
+          throw new Error('Unable to fetch employee of the month');
+        }
+      })
+      .then((data) => {
+        if (data) {
+          setEmployeeOfMonth(data);
+        }
+        setEomLoading(false);
+      })
+      .catch(() => {
+        setEomMessage('Error loading employee of the month.');
+        setEmployeeOfMonth(null);
+        setEomLoading(false);
+      });
   }, []);
 
-  const stats = {
-    carsSold: 37,
-    profit: 125000,
-    bestMonth: 'April 2024',
-    avgDealValue: 3378,
-  };
+  // Fetch bonus stats from /profile/search
+  useEffect(() => {
+    setStatsLoading(true);
+    setStatsMessage('');
+    fetch('/profile/search', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else if (response.status === 204) {
+          setStatsMessage('No stats data for current user.');
+          setStats(null);
+          setStatsLoading(false);
+          return null;
+        } else {
+          throw new Error('Unable to fetch stats');
+        }
+      })
+      .then((data) => {
+        if (data) {
+          setStats(data);
+        }
+        setStatsLoading(false);
+      })
+      .catch(() => {
+        setStatsMessage('Error loading stats.');
+        setStats(null);
+        setStatsLoading(false);
+      });
+  }, []);
 
   return (
     <div className="stats-page">
@@ -49,27 +85,35 @@ const StatsPage = () => {
       <div className="stats-employee-month">
         <h2>Employee of the Month</h2>
         <img src={crownIcon} alt="Employee of the Month" className="employee-crown" />
-        <div className="employee-name">{employeeOfMonth.Name}</div>
-        <div className="employee-position">{employeeOfMonth.Position}</div>
+        {eomLoading && <div>Loading...</div>}
+        {eomMessage && <div className="stats-message">{eomMessage}</div>}
+        {employeeOfMonth && (
+          <>
+            <div className="employee-name">
+              {employeeOfMonth.Name} {employeeOfMonth.Surname}
+            </div>
+            <div className="employee-position">{employeeOfMonth.Position}</div>
+            <div className="employee-sales">Sales: {employeeOfMonth.Sales}</div>
+          </>
+        )}
       </div>
-      <div className="stats-boxes">
-        <div className="stat-box">
-          <span className="stat-label">Cars Sold</span>
-          <span className="stat-value">{stats.carsSold}</span>
+      <h2 className="stats-title">Your Bonus Stats</h2>
+      {statsLoading && <div>Loading...</div>}
+      {statsMessage && <div className="stats-message">{statsMessage}</div>}
+      {stats && (
+        <div className="stats-boxes">
+          <div className="stat-box">
+            <span className="stat-label">Cars Sold</span>
+            <span className="stat-value">{stats.carsSold}</span>
+          </div>
+          <div className="stat-box">
+            <span className="stat-label">Total Profit</span>
+            <span className="stat-value">
+              ${stats.profit ? stats.profit.toLocaleString() : 0}
+            </span>
+          </div>
         </div>
-        <div className="stat-box">
-          <span className="stat-label">Total Profit</span>
-          <span className="stat-value">${stats.profit.toLocaleString()}</span>
-        </div>
-        <div className="stat-box">
-          <span className="stat-label">Best Month</span>
-          <span className="stat-value">{stats.bestMonth}</span>
-        </div>
-        <div className="stat-box">
-          <span className="stat-label">Avg. Deal Value</span>
-          <span className="stat-value">${stats.avgDealValue}</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

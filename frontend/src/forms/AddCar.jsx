@@ -4,43 +4,117 @@ import ToolBar from '../elements/ToolBar';
 
 const AddCar = () => {
   const [formData, setFormData] = useState({
-    brand: '',
-    model: '',
-    year: '',
-    price: '',
-    color: '',
-    mileage: '',
-    condition_id: '',
-    dealer_id: '',
+    Brand: '',
+    Model: '',
+    Color: '',
+    Mileage: '',
+    Price: '',
+    Car_condition_ID: '',
+    Car_dealer_ID: '',
   });
+  const [dealers, setDealers] = useState([]);
+  const [dealersLoaded, setDealersLoaded] = useState(false);
+  const [conditions, setConditions] = useState([]);
+  const [conditionsLoaded, setConditionsLoaded] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+
+  const fetchDealers = () => {
+    if (dealersLoaded) return;
+    fetch('/car_dealers/')
+      .then((res) => res.json())
+      .then((data) => {
+        setDealers(data);
+        setDealersLoaded(true);
+      })
+      .catch(() => {
+        setDealers([]);
+        setDealersLoaded(true);
+      });
+  };
+
+  const fetchConditions = () => {
+    if (conditionsLoaded) return;
+    fetch('/car_conditions/')
+      .then((res) => res.json())
+      .then((data) => {
+        setConditions(data);
+        setConditionsLoaded(true);
+      })
+      .catch(() => {
+        setConditions([]);
+        setConditionsLoaded(true);
+      });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleDealerFocus = () => {
+    fetchDealers();
+  };
+
+  const handleConditionFocus = () => {
+    fetchConditions();
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/cars', {
+    setMessage('');
+    setMessageType('');
+
+    // Ensure IDs are sent as strings of digits
+    const payload = {
+      ...formData,
+      Car_condition_ID: String(formData.Car_condition_ID),
+      Car_dealer_ID: String(formData.Car_dealer_ID),
+    };
+
+    // Validate IDs are not empty and are digits
+    if (
+      !payload.Car_condition_ID ||
+      !/^\d+$/.test(payload.Car_condition_ID) ||
+      !payload.Car_dealer_ID ||
+      !/^\d+$/.test(payload.Car_dealer_ID)
+    ) {
+      setMessage('Please select both a valid condition and dealer.');
+      setMessageType('error');
+      return;
+    }
+
+    fetch('/cars/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        alert(data.message || 'Car added successfully!');
-        setFormData({
-          brand: '',
-          model: '',
-          year: '',
-          price: '',
-          color: '',
-          mileage: '',
-          condition_id: '',
-          dealer_id: '',
-        });
+      .then(async (response) => {
+        const data = await response.json();
+        if (response.ok) {
+          setMessage(data.message || 'Car added successfully!');
+          setMessageType('success');
+          setFormData({
+            Brand: '',
+            Model: '',
+            Color: '',
+            Mileage: '',
+            Price: '',
+            Car_condition_ID: '',
+            Car_dealer_ID: '',
+          });
+          setDealersLoaded(false);
+          setConditionsLoaded(false);
+        } else {
+          setMessage(data.error || 'Failed to add car.');
+          setMessageType('error');
+        }
       })
-      .catch((error) => console.error('Error adding car:', error));
+      .catch((error) => {
+        setMessage('Error adding car.');
+        setMessageType('error');
+        console.error('Error adding car:', error);
+      });
   };
 
   return (
@@ -50,70 +124,83 @@ const AddCar = () => {
       <form className="hire-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          name="brand"
+          name="Brand"
           placeholder="Brand"
-          value={formData.brand}
+          value={formData.Brand}
           onChange={handleChange}
           required
         />
         <input
           type="text"
-          name="model"
+          name="Model"
           placeholder="Model"
-          value={formData.model}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="year"
-          placeholder="Year"
-          value={formData.year}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
+          value={formData.Model}
           onChange={handleChange}
           required
         />
         <input
           type="text"
-          name="color"
+          name="Color"
           placeholder="Color"
-          value={formData.color}
+          value={formData.Color}
           onChange={handleChange}
+          required
         />
         <input
           type="number"
-          name="mileage"
+          name="Mileage"
           placeholder="Mileage"
-          value={formData.mileage}
+          value={formData.Mileage}
           onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="condition_id"
-          placeholder="Condition ID"
-          value={formData.condition_id}
-          onChange={handleChange}
+          min="0"
           required
         />
         <input
           type="number"
-          name="dealer_id"
-          placeholder="Dealer ID"
-          value={formData.dealer_id}
+          name="Price"
+          placeholder="Price"
+          value={formData.Price}
           onChange={handleChange}
+          min="0"
           required
         />
+        <select
+          name="Car_condition_ID"
+          value={formData.Car_condition_ID}
+          onChange={handleChange}
+          onFocus={handleConditionFocus}
+          required
+        >
+          <option value="">Condition</option>
+          {conditions.map((condition) => (
+            <option key={condition.Car_condition_ID} value={condition.Car_condition_ID}>
+              {condition.Condition}
+            </option>
+          ))}
+        </select>
+        <select
+          name="Car_dealer_ID"
+          value={formData.Car_dealer_ID}
+          onChange={handleChange}
+          onFocus={handleDealerFocus}
+          required
+        >
+          <option value="">Dealer</option>
+          {dealers.map((dealer) => (
+            <option key={dealer.Car_dealer_ID} value={dealer.Car_dealer_ID}>
+              {dealer.Name}
+            </option>
+          ))}
+        </select>
         <button type="submit" className="hire-button">
           Add Car
         </button>
       </form>
+      {message && (
+        <div className={`addcar-message ${messageType}`}>
+          {message}
+        </div>
+      )}
     </div>
   );
 };

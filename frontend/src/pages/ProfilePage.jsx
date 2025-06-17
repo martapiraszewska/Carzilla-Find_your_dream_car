@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ProfilePage.css';
+import ToolBar from '../elements/ToolBar';
 
 const ProfilePage = () => {
   const { logout } = useAuth(); // Access the logout function
@@ -48,6 +49,7 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
+      <ToolBar />
       <h1 className="profile-title">Profile</h1>
       <div className="profile-stats">
         <h2>Account Stats</h2>

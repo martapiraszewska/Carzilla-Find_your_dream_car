@@ -4,30 +4,29 @@ import { useNavigate } from 'react-router-dom';
 import ToolBar from '../elements/ToolBar';
 
 const EmployeePage = () => {
-  // Mocked employee data
-  const [employees, setEmployees] = useState([
-  // { id: 1, name: 'John Doe', position: 'Sales Manager' },
-  // { id: 2, name: 'Jane Smith', position: 'Accountant' },
-  // { id: 3, name: 'Alice Johnson', position: 'HR Specialist' },
-  // { id: 4, name: 'Bob Brown', position: 'Mechanic' },
-  ]);
+  const [employees, setEmployees] = useState([]);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const navigate = useNavigate();
 
   const handleFetchEmployees = () => {
     const options = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept', 'credentials': 'include'},
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+        'credentials': 'include'
+      },
     };
     fetch('/employees/search', options).then((response) => {
       if (response.status === 200) {
-          response.json().then(data => {
-            setEmployees(data);
-            console.log(data);
-            return data;
-          })
-      }
-      else{
-          console.log("unable to fetch profile data", response);
+        response.json().then(data => {
+          setEmployees(data);
+          return data;
+        });
+      } else {
+        console.log("unable to fetch profile data", response);
       }
     });
   };
@@ -41,36 +40,43 @@ const EmployeePage = () => {
   };
 
   const handleFire = (id) => {
+    setMessage('');
+    setMessageType('');
     fetch(`/employees/remove/${id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(data.message || 'Employee fired successfully!');
-        // setFormData({
-        //   Name: '',
-        //   Surname: '',
-        //   Gender: '',
-        //   Salary: '',
-        //   Date_of_birth: '',
-        //   Phone_number: '',
-        //   Employee_status_id: '',
-        //   Car_dealer_id: '',
-        //   Login_credentials_id: '',
-        // });
+        setMessage(data.message || 'Employee fired successfully!');
+        setMessageType('success');
+        // Remove fired employee from list
+        setEmployees((prev) => prev.filter(emp => emp.Employee_ID !== id));
       })
-      .catch((error) => console.error('Error firing employee:', error));
+      .catch(() => {
+        setMessage('Error firing employee.');
+        setMessageType('error');
+      });
   };
 
   return (
     <div className="employee-page">
       <ToolBar />
       <h1 className="employee-title">Employee Management</h1>
+      <button className="hire-button" onClick={handleHire}>
+        Hire
+      </button>
+      {message && (
+        <div className={`employee-message ${messageType}`}>
+          {message}
+        </div>
+      )}
       <ul className="employee-list">
         {employees.map((employee) => (
           <li key={employee.Employee_ID} className="employee-item">
-            <span className="employee-name">{employee.Name}</span>
+            <span className="employee-name">
+              {employee.Name} {employee.Surname}
+            </span>
             <span className="employee-position">{employee.Position_name}</span>
             <button
               className="fire-button"
@@ -81,9 +87,6 @@ const EmployeePage = () => {
           </li>
         ))}
       </ul>
-      <button className="hire-button" onClick={handleHire}>
-        Hire
-      </button>
     </div>
   );
 };
