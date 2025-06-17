@@ -266,7 +266,7 @@ BEGIN
     RAISE EXCEPTION 'Postcode must be exactly 5 digits. Got: %', NEW."Postcode";
   END IF;
 
-  IF NEW."Street_number" < 0 THEN
+  IF NEW."Street_number" <= 0 THEN
     RAISE EXCEPTION 'Street number cannot be negative';
   END IF;
 
