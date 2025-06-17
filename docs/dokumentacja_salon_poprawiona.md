@@ -235,6 +235,84 @@ Baza danych służy do zarządzania działalnością handlową salonów samochod
 
 ---
 
-## 4. Zastosowanie
+## 4. Triggery i funkcje
+
+Służą zautomatyzowaniu kluczowych operacji wykonywanych na bazie danych, zapewnieniu integralności referencyjnej oraz logicznej, a także poprawności i spójności wprowadzanych danych. 
+
+---
+
+### update_employee_stats + trg_update_employee_stats
+
+**Cel:** po każdej nowej transakcji automatycznie aktualizuje statystyki pracownika (sprzedaż, wartość) i weryfikuje czy wartość jest większa od 0.
+
+---
+
+### insert_invoice + trg_insert_invoice
+
+**Cel:** jeśli przy tworzeniu faktury nie podano daty wystawienia, ustawia datę wystawienia na obecną datę.
+
+---
+
+### insert_position_history + trg_insert_position_history
+
+**Cel:** przy tworzeniu nowej pozycji bez daty zakończenia, uzupełnia pensję pracownika na podstawie zakresu pensji dla danej pozycji, utomatycznie aktualizuje datę zakończenia poprzednich pozycji na dzień przed rozpoczęciem nowej pozycji.
+
+---
+
+### delete_car_dealer + trg_delete_car_dealer
+
+**Cel:** po usunięciu dealera usuwa również powiązany z nim adres, aby uniknąć pozostawiania zbędnych rekordów.
+
+---
+
+### insert_car + trg_insert_car
+
+**Cel:** przed dodaniem lub aktualizacją samochodu weryfikuje, czy przebieg i cena są większe lub równe 0.
+
+---
+
+### insert_address + trg_insert_address
+
+**Cel:** weryfikuje, czy kod pocztowy składa się dokładnie z 5 cyfr i czy numer domu jest większy od 0.
+
+---
+
+### insert_client + trg_insert_client
+
+**Cel:** waliduje poprawność adresu e-mail - musi zawierać znak @.
+
+---
+
+### insert_employee + trg_insert_employee
+
+**Cel:** blokuje możliwość dodania pracownika z pensją mniejszą niż 0.
+
+---
+
+### insert_position + trg_insert_position
+
+**Cel:** waliduje, że minimalna i maksymalna pensja są większe lub równe 0 i czy pensja minimalna nie jest większa od maksymalnej.
+
+---
+
+### delete_employee + trg_delete_employee
+
+**Cel:** zamiast fizycznie usuwać pracownika ustawia jego status na "Inactive" i zamyka wszystkie otwarte pozycje w historii, co pozwala zachować dane historyczne.
+
+---
+
+### Funkcja użytkowa: get_user_stats(user_id INTEGER)
+
+**Cel:** zwraca podsumowanie aktywności pracownika w formie tabeli. Zwraca liczbę przeprowadzonych transakcji, łączną wartość transakcji i datę pierwszej transakcji.
+
+---
+
+## 4. Dane testowe
+
+Skrypt generate_data.py automatycznie wypełnia bazę przykładowymi, realistycznymi danymi. Umożliwia szybkie testowanie działania systemu, interfejsu użytkownika oraz analiz funkcjonalnych bez potrzeby ręcznego wprowadzania danych.
+
+---
+
+## 5. Zastosowanie
 
 System może być używany przez sieć salonów samochodowych do zarządzania ofertą, personelem, klientami i wynikami sprzedaży. Dane są przygotowane do rozbudowanej analityki, raportów oraz obsługi procesów biznesowych.
