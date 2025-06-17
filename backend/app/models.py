@@ -75,7 +75,7 @@ class LoginCredentials(db.Model):
 
 class Employee(UserMixin, db.Model):
     __tablename__ = "Employee"
-    Employee_ID = db.Column(db.Integer, Identity(start=1, increment=1), primary_key=True, autoincrement=True)
+    Employee_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Name = db.Column(db.String, nullable=False)
     Surname = db.Column(db.String, nullable=False)
     Gender = db.Column(db.String, nullable=False)
