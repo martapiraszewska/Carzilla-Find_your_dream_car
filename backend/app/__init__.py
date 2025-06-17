@@ -25,6 +25,7 @@ def create_app():
     from .employee_status import employee_status_bp
     from .clients import clients_bp
     from .profile import profile_bp
+    from .positions import positions_bp
     from .stats import stats_bp
     from .invoices import invoices_bp
 
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(employee_status_bp, url_prefix="/employee_status")
     app.register_blueprint(clients_bp, url_prefix="/clients")
     app.register_blueprint(profile_bp, url_prefix="/profile")
+    app.register_blueprint(positions_bp, url_prefix="/positions")
     app.register_blueprint(stats_bp, url_prefix="/stats")
     app.register_blueprint(invoices_bp, url_prefix="/invoices")
 
