@@ -165,7 +165,7 @@ const AddEmployee = () => {
             </option>
           ))}
         </select>
-        {/* <select
+        <select
           name="Position_ID"
           value={formData.Position_ID}
           onChange={handleChange}
@@ -177,14 +177,7 @@ const AddEmployee = () => {
               {pos.Position_name}
             </option>
           ))}
-        </select> */}
-        <input
-          type="text"
-          name="Position_ID"
-          placeholder="Position ID"
-          value={formData.Position_ID}
-          onChange={handleChange}
-        />
+        </select>
         <button type="submit" className="hire-button">
           Hire Employee
         </button>

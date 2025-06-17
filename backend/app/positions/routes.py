@@ -14,7 +14,7 @@ def get_all():
         [
             {
                 "Position_ID": position.Position_ID,
-                "Name": position.Name,
+                "Position_name": position.Name,
             }
             for position in positions
         ]

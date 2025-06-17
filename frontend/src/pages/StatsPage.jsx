@@ -88,13 +88,13 @@ const StatsPage = () => {
         {eomLoading && <div>Loading...</div>}
         {eomMessage && <div className="stats-message">{eomMessage}</div>}
         {employeeOfMonth && (
-          <>
-            <div className="employee-name">
+          <div className="employee-details">
+            <span className="employee-name">
               {employeeOfMonth.Name} {employeeOfMonth.Surname}
-            </div>
-            <div className="employee-position">{employeeOfMonth.Position}</div>
+            </span>
+            <span className="employee-position">{employeeOfMonth.Position}</span>
             <div className="employee-sales">Sales: {employeeOfMonth.Sales}</div>
-          </>
+          </div>
         )}
       </div>
       <h2 className="stats-title">Your Bonus Stats</h2>
