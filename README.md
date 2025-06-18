@@ -36,7 +36,6 @@ Dzięki wykorzystaniu konteneryzacji, aplikacja działa w izolowanym i spójnym 
 
 [Baza Danych](docs/dokumentacja_baza_danych.md)
 
-
 [Testowanie](docs/testy.pdf)
 
 ### Użyte Technologie
