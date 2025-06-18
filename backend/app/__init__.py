@@ -16,7 +16,6 @@ def create_app():
 
     from .auth import auth_bp
     from .main import main_bp
-    from .dashboard import dashboard_bp
 
     from .cars import cars_bp
     from .car_conditions import car_conditions_bp
@@ -31,7 +30,6 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp, url_prefix="/")
-    app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(cars_bp, url_prefix="/cars")
     app.register_blueprint(car_conditions_bp, url_prefix="/car_conditions")
     app.register_blueprint(car_dealers_bp, url_prefix="/car_dealers")
