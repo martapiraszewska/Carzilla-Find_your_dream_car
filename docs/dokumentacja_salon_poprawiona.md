@@ -6,7 +6,7 @@
 - Jakub Bagiński
 - Michał Bloch
 - Bartosz Mączka
-- Aleksander Paliwoda
+- Aleksander Paliwoda -> frontend (React), intuicyjna aplikacja, łatwość obsługi
 - Marta Piraszewska
 
 ## 1. Opis ogólny
