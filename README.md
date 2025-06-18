@@ -14,3 +14,14 @@ Projekt jest stworzony do obsługi sieci dealerów samochodowych. Strona ma spe�
  - na stronie głównej jest wyszukiwarka samochodów i przejście do panelu logowania
  - po zalogowaniu pojawiają się opcje w kafelkach (tabele)
  - po wybraniu konkretnej tabeli pojawiają się opcje co można zrobić (dodaj, wyszukaj, edytuj, usuń (tylko dla menagera))
+
+### Dokumentacja
+Dokumentacja aplikacji - frontend, backend oraz database znajduje się w folderze docs.
+
+### Uruchomienie
+Aby uruchomić aplikacje należy wpisać
+```
+docker-compose up
+```
+
+Można dodać ``-d`` aby uruchomić aplikacje w tle (bez logów).

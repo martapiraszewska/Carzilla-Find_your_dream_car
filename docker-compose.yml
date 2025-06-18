@@ -16,17 +16,26 @@ services:
     ports:
       - "5432:5432"
 
-  # backend:
-  #   build: ./backend
-  #   container_name: my_flask_app
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - ./backend:/app
-
+  backend:
+    build: ./backend
+    container_name: my_flask_app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+  frontend:
+    build: ./frontend
+    container_name: my_react_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
 volumes:
   pgdata:

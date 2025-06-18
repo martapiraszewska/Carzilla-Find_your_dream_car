@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "-m", "run_app"]
+CMD ["python3", "run_app.py"]
