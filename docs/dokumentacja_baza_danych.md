@@ -1,13 +1,4 @@
-# Dokumentacja Bazy Danych – Salon Samochodowy
-
-<!-- jeszcze trzeba dodać trochę dokumentacji z bazy i frontu -->
-
-## Autorzy
-- Jakub Bagiński
-- Michał Bloch
-- Bartosz Mączka
-- Aleksander Paliwoda -> frontend (React), intuicyjna aplikacja, łatwość obsługi
-- Marta Piraszewska
+# Dokumentacja Bazy Danych
 
 ## 1. Opis ogólny
 
